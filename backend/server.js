@@ -77,7 +77,16 @@ app.get("/health", (_req, res) => {
 /* ------------------ Arranque ------------------ */
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
-  console.log(`✅ API: http://localhost:${PORT}`);
-  console.log(`🖥️  UI : http://localhost:${PORT}/`);
-});
+async function startServer() {
+  try {
+    app.listen(PORT, () => {
+      console.log(`✅ API: http://localhost:${PORT}`);
+      console.log(`🖥️  UI : http://localhost:${PORT}/`);
+    });
+  } catch (error) {
+    console.error("❌ Error al iniciar el servidor:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
