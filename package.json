@@ -1,0 +1,28 @@
+{
+  "name": "diseno-empaque-backend",
+  "version": "1.0.0",
+  "description": "Backend del sistema de gestión de diseños de empaque",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "cd backend && npm run dev",
+    "start": "node server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "seed": "node scripts/seed-admin.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.18.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "prisma": "^6.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

@@ -1,0 +1,54 @@
+Testing Azure OCR with: /home/ph43rn/diseno-empaque/backend/uploads/designs/test.pdf
+[ocr] Processing PDF with Azure: /home/ph43rn/diseno-empaque/backend/uploads/designs/test.pdf
+Result: {
+  "rawText": "Dummy PDF file",
+  "product": {
+    "itemDescription": "",
+    "bulbsCount": "",
+    "lightColor": "",
+    "wireColor": "",
+    "powerSupply": "",
+    "upc": "",
+    "_boxes": {
+      "itemDescription": null,
+      "bulbsCount": null,
+      "lightColor": null,
+      "wireColor": null,
+      "powerSupply": null,
+      "upc": null
+    }
+  },
+  "faces": {
+    "frente": {
+      "texts": [],
+      "box": null
+    },
+    "cara2": {
+      "texts": [],
+      "box": null
+    },
+    "cara3": {
+      "texts": [],
+      "box": null
+    },
+    "cara4": {
+      "texts": [],
+      "box": null
+    },
+    "tapa": {
+      "texts": [],
+      "box": null
+    },
+    "base": {
+      "texts": [],
+      "box": null
+    }
+  },
+  "claims": [],
+  "warnings": "",
+  "functions": [],
+  "_rawBoxes": {
+    "claims": []
+  },
+  "_raw": "{\"product\":{\"itemDescription\":{\"value\":\"\",\"box\":null},\"bulbsCount\":{\"value\":\"\",\"box\":null},\"lightColor\":{\"value\":\"\",\"box\":null},\"wireColor\":{\"value\":\"\",\"box\":null},\"powerSupply\":{\"value\":\"\",\"box\":null},\"upc\":{\"value\":\"\",\"box\":null},\"detectedCategory\":\"\",\"detectedTech\":\"\",\"detectedPackaging\":\"\"},\"faces\":{\"frente\":{\"texts\":[],\"box\":null},\"cara2\":{\"texts\":[],\"box\":null},\"cara3\":{\"texts\":[],\"box\":null},\"cara4\":{\"texts\":[],\"box\":null},\"tapa\":{\"texts\":[],\"box\":null},\"base\":{\"texts\":[],\"box\":null}},\"validation\":{\"ruleFound\":false,\"matchedRuleIndex\":-1,\"details\":[{\"face\":\"frente\",\"status\":\"MISSING\",\"missingElements\":[],\"foundElements\":[]},{\"face\":\"cara2\",\"status\":\"MISSING\",\"missingElements\":[],\"foundElements\":[]},{\"face\":\"cara3\",\"status\":\"MISSING\",\"missingElements\":[],\"foundElements\":[]},{\"face\":\"cara4\",\"status\":\"MISSING\",\"missingElements\":[],\"foundElements\":[]},{\"face\":\"tapa\",\"status\":\"MISSING\",\"missingElements\":[],\"foundElements\":[]},{\"face\":\"base\",\"status\":\"MISSING\",\"missingElements\":[],\"foundElements\":[]}],\"overallStatus\":\"REJECTED\"},\"contentValidation\":{\"ruleFound\":false,\"matchedCategory\":\"\",\"details\":{\"Descripción\":{\"status\":\"MISSING\",\"missingText\":[],\"foundText\":[]},\"Caracteristicas\":{\"status\":\"MISSING\",\"missingText\":[],\"foundText\":[]},\"Claims\":{\"status\":\"MISSING\",\"missingText\":[],\"foundText\":[]},\"Diagrama\":{\"status\":\"MISSING\",\"missingText\":[],\"foundText\":[]},\"Tabla informativa / Gráfico\":{\"status\":\"MISSING\",\"missingText\":[],\"foundText\":[]}},\"overallStatus\":\"REJECTED\"},\"claims\":[],\"warnings\":{\"text\":\"\",\"box\":null},\"functions\":[],\"rawText\":\"Dummy PDF file\"}"
+}

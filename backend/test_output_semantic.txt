@@ -1,0 +1,64 @@
+Testing Azure OCR with: /home/ph43rn/diseno-empaque/backend/uploads/designs/test.pdf
+[ocr] Processing PDF with Azure: /home/ph43rn/diseno-empaque/backend/uploads/designs/test.pdf
+Result: {
+  "rawText": "Dummy PDF file",
+  "product": {
+    "itemDescription": "Dummy PDF file",
+    "bulbsCount": "string",
+    "lightColor": "string",
+    "wireColor": "string",
+    "powerSupply": "string",
+    "upc": "string",
+    "_boxes": {
+      "itemDescription": null,
+      "bulbsCount": null,
+      "lightColor": null,
+      "wireColor": null,
+      "powerSupply": null,
+      "upc": null
+    }
+  },
+  "faces": {
+    "frente": {
+      "texts": [
+        "Dummy PDF file"
+      ],
+      "box": null
+    },
+    "cara2": {
+      "texts": [],
+      "box": null
+    },
+    "cara3": {
+      "texts": [],
+      "box": null
+    },
+    "cara4": {
+      "texts": [],
+      "box": null
+    },
+    "tapa": {
+      "texts": [],
+      "box": null
+    },
+    "base": {
+      "texts": [],
+      "box": null
+    }
+  },
+  "claims": [],
+  "warnings": "",
+  "functions": [],
+  "_rawBoxes": {
+    "claims": []
+  },
+  "_raw": "{\"product\":{\"itemDescription\":{\"value\":\"Dummy PDF file\",\"box\":null},\"bulbsCount\":{\"value\":\"string\",\"box\":null},\"lightColor\":{\"value\":\"string\",\"box\":null},\"wireColor\":{\"value\":\"string\",\"box\":null},\"powerSupply\":{\"value\":\"string\",\"box\":null},\"upc\":{\"value\":\"string\",\"box\":null},\"detectedCategory\":\"string\",\"detectedTech\":\"string\",\"detectedPackaging\":\"string\"},\"faces\":{\"frente\":{\"texts\":[\"Dummy PDF file\"],\"box\":null},\"cara2\":{\"texts\":[],\"box\":null},\"cara3\":{\"texts\":[],\"box\":null},\"cara4\":{\"texts\":[],\"box\":null},\"tapa\":{\"texts\":[],\"box\":null},\"base\":{\"texts\":[],\"box\":null}},\"validation\":{\"ruleFound\":false,\"matchedRuleIndex\":-1,\"details\":[{\"face\":\"frente\",\"status\":\"MISSING\",\"missingElements\":[\"Logotipo\",\"descripción\",\"características\",\"foto A\"],\"foundElements\":[\"Dummy PDF file\"]},{\"face\":\"cara2\",\"status\":\"MISSING\",\"missingElements\":[\"Tabla informativa\"],\"foundElements\":[]},{\"face\":\"cara3\",\"status\":\"MISSING\",\"missingElements\":[\"Caracteristicas\"],\"foundElements\":[]},{\"face\":\"cara4\",\"status\":\"MISSING\",\"missingElements\":[\"Tip\",\"sello garantía\",\"foto A\"],\"foundElements\":[]},{\"face\":\"tapa\",\"status\":\"MISSING\",\"missingElements\":[\"Logotipo\"],\"foundElements\":[]},{\"face\":\"base\",\"status\":\"MISSING\",\"missingElements\":[\"Información NOM\",\"UPC\"],\"foundElements\":[]}],\"overallStatus\":\"REJECTED\"},\"contentValidation\":{\"ruleFound\":false,\"matchedCategory\":\"string\",\"details\":{\"Descripción\":{\"status\":\"MISSING\",\"missingText\":[\"Serie 100 luces incandescentes\",\"Serie 100 luces LED\",\"Serie 150 luces LED\",\"Serie 300 luces LED\"],\"foundText\":[]},\"Caracteristicas\":{\"status\":\"MISSING\",\"missingText\":[\"Color de luz\",\"color de cable\",\"medida total\"],\"foundText\":[]},\"Claims\":{\"status\":\"MISSING\",\"missingText\":[\"Tipo de bulbo\",\"Interconectable\",\"Focos y fusible de repuesto\",\"Longitud\",\"Sello de garantía\"],\"foundText\":[]},\"Diagrama\":{\"status\":\"MISSING\",\"missingText\":[\"N/A\"],\"foundText\":[]},\"Tabla informativa / Gráfico\":{\"status\":\"MISSING\",\"missingText\":[\"¿Cuántas series necesita tu arbolito?*\\n2.5m - 3 a 6 series, 2.25 m - 2 a 5 series,\\n2 m - 1 a 4 series.\"],\"foundText\":[]}},\"overallStatus\":\"REJECTED\"},\"claims\":[],\"warnings\":{\"text\":\"\",\"box\":null},\"functions\":[],\"rawText\":\"Dummy PDF file\"}"
+}
+
+Semantic Classification Results:
+frente: 1 fragments
+cara2: 0 fragments
+cara3: 0 fragments
+cara4: 0 fragments
+tapa: 0 fragments
+base: 0 fragments

@@ -1,0 +1,157 @@
+// prisma/schema.prisma — ESQUEMA COMPLETO
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/* ============================
+   ENUMS
+   ============================ */
+enum Role {
+  ADMIN
+  LEADER
+  DESIGNER
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  DONE
+  APPROVED
+  REJECTED
+}
+
+enum FileType {
+  EXCEL
+  DESIGN
+}
+
+/* ============================
+   MODELOS CORE
+   ============================ */
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(DESIGNER)
+
+  // Relación con Team (miembro)
+  teamId    Int?
+  team      Team?    @relation(fields: [teamId], references: [id])
+
+  // Relación como líder de Team(s)
+  ledTeams           Team[]       @relation("Leader")
+
+  // Relación con Assignment
+  createdAssignments Assignment[] @relation("CreatedBy")
+  assignedAssignments Assignment[] @relation("Assignee")
+
+  // Relación con FileRecord (archivos subidos por el usuario)
+  uploadedFiles      FileRecord[]
+
+  // Chat/Asistente (hilos que le pertenecen)
+  chatThreads        ChatThread[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Team {
+  id        Int      @id @default(autoincrement())
+  name      String
+
+  // Líder
+  leaderId  Int
+  leader    User     @relation("Leader", fields: [leaderId], references: [id])
+
+  // Miembros: usuarios cuyo user.teamId = team.id
+  members   User[]
+
+  createdAt DateTime @default(now())
+}
+
+model Assignment {
+  id          Int      @id @default(autoincrement())
+  modelKey    String
+  title       String
+  description String?
+  status      Status   @default(PENDING)
+
+  // Asignado a (diseñador) — opcional
+  assigneeId  Int?
+  assignee    User?    @relation("Assignee", fields: [assigneeId], references: [id])
+
+  // Creado por (líder o admin)
+  createdById Int
+  createdBy   User     @relation("CreatedBy", fields: [createdById], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model FileRecord {
+  id          Int      @id @default(autoincrement())
+  type        FileType
+  modelKey    String
+  path        String
+  original    String
+
+  uploadedBy  Int
+  user        User     @relation(fields: [uploadedBy], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+model Validation {
+  id        Int      @id @default(autoincrement())
+  modelKey  String
+  status    String   // "OK" | "NOT_OK" | "PENDING"
+  details   String   // JSON serializado con resultados de OCR/Comparación
+  createdAt DateTime @default(now())
+}
+
+/* ============================
+   MAPEOS DE EXCEL (perfiles)
+   ============================ */
+
+model MappingProfile {
+  id           Int       @id @default(autoincrement())
+  name         String    // p.ej. "Proveedor A v2"
+  sourceHint   String?   // pista/etiqueta: proveedor, marca, cliente
+  sheetMatch   String?   // regex simple para elegir hoja (opcional)
+  modelColumn  String    // nombre exacto de columna donde viene el modelKey
+  textColumns  String[]  // columnas que traen textos requeridos (Postgres text[])
+  extraSchema  Json?     // JSON con campos adicionales si se requieren
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+/* ============================
+   CHAT / ASISTENTE (GPT)
+   ============================ */
+
+model ChatThread {
+  id        Int        @id @default(autoincrement())
+  ownerId   Int
+  owner     User       @relation(fields: [ownerId], references: [id])
+  title     String     @default("Asistente")
+  createdAt DateTime   @default(now())
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id        Int        @id @default(autoincrement())
+  threadId  Int
+  thread    ChatThread @relation(fields: [threadId], references: [id])
+  role      String     // "user" | "assistant" | "system"
+  content   String
+  createdAt DateTime   @default(now())
+}

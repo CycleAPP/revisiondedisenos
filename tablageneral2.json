@@ -1,0 +1,138 @@
+[
+  {
+    "Categoria": "Series",
+    "Descripción": "Serie 100 luces incandescentes\nSerie 100 luces LED\nSerie 150 luces LED\nSerie 300 luces LED",
+    "Caracteristicas": "Color de luz\ncolor de cable\nmedida total",
+    "Claims": "Tipo de bulbo\nInterconectable\nFocos y fusible de repuesto\nLongitud\nSello de garantía",
+    "Diagrama": "N/A",
+    "Tabla informativa / Gráfico": "¿Cuántas series necesita tu arbolito?*\n2.5m - 3 a 6 series, 2.25 m - 2 a 5 series,\n2 m - 1 a 4 series."
+  },
+  {
+    "Categoria": "Cascadas",
+    "Descripción": "Serie 150 luces incandescentes\n Serie 150 luces LED - En cascada\nSerie 200 luces LED - En cascada\nSerie 132 luces LED - Cascada c/ figuras",
+    "Caracteristicas": "Color de luz\ncolor de cable\nmedida total",
+    "Claims": "Tipo de bulbo\nInterconectable\nFocos y fusible de repuesto\nLongitud\nSello de garantía",
+    "Diagrama": "Longitud total e iluminada",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Red",
+    "Descripción": "Serie 150 luces LED - Tipo red trapezoidal\n",
+    "Caracteristicas": "Color de luz\ncolor de cable\nmedida total",
+    "Claims": "Tipo de bulbo\nInterconectable\nFocos y fusible de repuesto\nLongitud\nSello de garantía",
+    "Diagrama": "Longitud total e iluminada",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Guirnalda",
+    "Descripción": "Serie 150 luces LED - \nTipo guirnalda / 8 funciones\n",
+    "Caracteristicas": "Color de luz\nColor de cable\nFunciones\nMedida total",
+    "Claims": "Tipo de bulbo\nInterconectable\nFocos y fusible de repuesto\nLongitud\nSello de garantía",
+    "Diagrama": "Longitud total e iluminada",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Micro led",
+    "Descripción": "Serie de 50 luces LED - HW\nSerie 20 luces LED\n",
+    "Caracteristicas": "Color de luz\nColor de cable\nMedida total",
+    "Claims": "Incluye 3 baterías AA\nIncluye temporizador (6 horas encendido, \n18 horas apagado). - HW\nFunciona con 2 baterías AA (no incluidas)\nLongitud: 2.2 m\n",
+    "Diagrama": "Longitud total e iluminada",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Mangueras",
+    "Descripción": "Manguera luminosa LED\nManguera luminosa incandescente",
+    "Caracteristicas": "Color de luz\nColor de cable\nMedida total",
+    "Claims": "Fusible de repuesto\nConsumo energético: 80 W\nLongitud: 9.6 m\n",
+    "Diagrama": "N/A",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Silueto",
+    "Descripción": "Serie 50 luces LED\nSerie 25 luces LED\nSerie 20 luces LED\nSerie 10 luces LED \nEstalactitas iluminas LED\nSerie de 10 luces LED ojos blancos - HW\nSerie de 10 luces LED manos de esqueleto - HW\nSerie 10 luces LED murciélagos morados - HW",
+    "Caracteristicas": "Color de luz\nColor de cable\nMedida total",
+    "Claims": "Fusible de repuesto\nLongitud: 4.2 m\nFunciona con 2 baterías AA (no incluidas)\nIncluye temporizador  (6 horas encendido, \n18 horas apagado)\nLongitud: 1.1 m\nCable transparente\nInterconectable hasta 3 series\n",
+    "Diagrama": "Longitud total e iluminada con figuras",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Estrellas",
+    "Descripción": "Estrella iluminada LED",
+    "Caracteristicas": "Color de luz\nColor de cable\nMedida total",
+    "Claims": "Longitud de cable: 1.1 m\nFusible de repuesto\nCable verde\nColor de base",
+    "Diagrama": "Medidas",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Estacas",
+    "Descripción": "3 Estacas LED\n5 Estacas LED\n3 Ramas LED",
+    "Caracteristicas": "Color de luz\nColor de cable\nMedida total",
+    "Claims": "Interconectable hasta 3 series\nFusible de repuesto\nLongitud\nIncluye temporizador\nIncluye estacas para instalación\nIncluye 3 baterías AA",
+    "Diagrama": "Longitud total e iluminada con figuras",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Proyector",
+    "Descripción": "Proyector LED",
+    "Caracteristicas": "Color de cable\nMedida total\nPatrones",
+    "Claims": "N/A",
+    "Diagrama": "Patrones disponibles",
+    "Tabla informativa / Gráfico": "Cobertura de proyección"
+  },
+  {
+    "Categoria": "Faro",
+    "Descripción": "Faro con vela LED",
+    "Caracteristicas": "Color de luz\nMedida total",
+    "Claims": "Incluye 3 baterías AA\nDimensiones 11 x 11 x 22 cm\nMarco de cristal\n",
+    "Diagrama": "Medidas",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Focos jumbo",
+    "Descripción": "Foco jumbo LED",
+    "Caracteristicas": "Color de luz",
+    "Claims": "Incluye temporizador  (6 horas encendido, \n18 horas apagado)\nIncluye 3 baterías AA\n",
+    "Diagrama": "N/A",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Velas",
+    "Descripción": "Set 3 velas LED",
+    "Caracteristicas": "Color de luz\nMedida total",
+    "Claims": "Incluye baterias de botón\nVaso de acrilico\nFlama parpadeante móvil\nHechas de cera real\nIncluye temporizador\nCada vela funciona con dos baterías AA",
+    "Diagrama": "Medidas",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Prelit",
+    "Descripción": "Árbol iluminado LED",
+    "Caracteristicas": "Color de luz\nColor de cable\nDiámetro\nAltura\nNo. de luces\nFunciones\n",
+    "Claims": "Puntas\nDecoración",
+    "Diagrama": "N/A",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Mascara",
+    "Descripción": "Mascara iluminada",
+    "Caracteristicas": "",
+    "Claims": "Incluye 2 baterías AA",
+    "Diagrama": "N/A",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Calabazas",
+    "Descripción": "Calabaza sonriente con luces LED\nTorre de calabazas sonrientes con luces LED",
+    "Caracteristicas": "Color de luz\nAltura\nBase",
+    "Claims": "Funciona con 2 baterías AA (no incluidas)",
+    "Diagrama": "Medidas",
+    "Tabla informativa / Gráfico": "N/A"
+  },
+  {
+    "Categoria": "Telarañas",
+    "Descripción": "Telaraña con luces LED",
+    "Caracteristicas": "Color de luz\nDiámetro",
+    "Claims": "Interconectable\nFusible de repuesto\n",
+    "Diagrama": "Medidas",
+    "Tabla informativa / Gráfico": "N/A"
+  }
+]

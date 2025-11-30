@@ -1,0 +1,5 @@
+Listing all assignments to find match...
+- ID: 1, ModelKey: "ax51", Title: "ejemplo"
+- ID: 2, ModelKey: "ejemplo1", Title: "jeje"
+- ID: 3, ModelKey: "jqicj", Title: "idshis"
+X03 assignment not found.

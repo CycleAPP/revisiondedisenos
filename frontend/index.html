@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Diseños de Empaque — Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Libs -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Estilos de la UI -->
+  <link rel="stylesheet" href="/css/ui.css" />
+</head>
+
+<body>
+  <div id="toast" class="fixed top-4 right-4 z-[90] space-y-3"></div>
+
+  <!-- Modal Crear Usuario -->
+  <div id="modalBackdrop" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"></div>
+  <div id="createUserModal"
+    class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4" role="dialog"
+    aria-modal="true">
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5"></i>Crear usuario
+        </h3>
+        <button id="closeCreateUser" class="text-gray-400 hover:text-gray-600 transition-colors">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <div><label class="block text-sm font-medium mb-1">Nombre</label><input id="cu_name" class="input"
+            placeholder="Nombre completo" /></div>
+        <div><label class="block text-sm font-medium mb-1">Email</label><input id="cu_email" class="input"
+            placeholder="email@dominio.com" /></div>
+        <div><label class="block text-sm font-medium mb-1">Password</label><input id="cu_password" type="password"
+            class="input" placeholder="********" /></div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Rol</label>
+          <select id="cu_role" class="input">
+            <option value="DESIGNER">DESIGNER</option>
+            <option value="LEADER">LEADER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-6 flex gap-3 justify-end">
+        <button id="cancelCreateUser" class="btn btn-ghost">Cancelar</button>
+        <button id="saveCreateUser" class="btn btn-primary">Crear usuario</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="sbar h-screen sticky top-0 flex flex-col items-center py-6 gap-6">
+      <div class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shadow-lg mb-2">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+      </div>
+
+      <div class="flex flex-col gap-2 w-full px-2">
+        <button class="nav-icon active" data-tab="tab-dashboard" title="Dashboard"><i data-lucide="layout-dashboard"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon" data-tab="tab-login" title="Inicio"><i data-lucide="home" class="w-5 h-5"></i></button>
+        <button class="nav-icon hidden" data-tab="tab-designer" title="Diseñador"><i data-lucide="palette"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon hidden" data-tab="tab-studio" title="Studio"><i data-lucide="app-window"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon hidden" data-tab="tab-leader" title="Líder"><i data-lucide="git-branch"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon hidden" data-tab="tab-templates" title="Esqueletos AI"><i data-lucide="box"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon hidden" data-tab="tab-admin" title="Administrador"><i data-lucide="shield-check"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon" data-tab="tab-files" title="Archivos"><i data-lucide="folder-open"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon" onclick="showUserGuide()" title="Ayuda"><i data-lucide="help-circle"></i></button>
+        <button class="nav-icon hidden" data-tab="tab-designs" title="Diseños"><i data-lucide="image"
+            class="w-5 h-5"></i></button>
+        <button class="nav-icon" data-tab="tab-assistant" title="Asistente IA"><i data-lucide="bot"
+            class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="mt-auto flex flex-col gap-2 w-full px-2">
+        <button class="nav-icon" data-tab="tab-settings" title="Configuración"><i data-lucide="settings"
+            class="w-5 h-5"></i></button>
+        <button id="btnLogout" class="nav-icon text-red-500 hover:bg-red-50 hover:text-red-600" title="Salir"><i
+            data-lucide="log-out" class="w-5 h-5"></i></button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Header -->
+      <header class="sticky top-0 z-30 px-8 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <h1 id="pageTitle" class="text-lg font-semibold">Dashboard</h1>
+          <div id="roleBadge" class="text-xs"></div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="relative hidden md:block w-64">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input id="tableSearchInput"
+              class="input pl-9 py-2 text-sm bg-gray-50 border-none focus:bg-white focus:ring-1 focus:ring-gray-200"
+              placeholder="Buscar..." />
+          </div>
+
+          <div class="h-6 w-px bg-gray-200 mx-2"></div>
+
+          <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500">
+            <i data-lucide="moon" class="w-5 h-5"></i>
+          </button>
+
+          <div id="userBadge" class="text-sm font-medium text-gray-600"></div>
+        </div>
+      </header>
+
+      <main class="flex-1 p-8 max-w-7xl w-full mx-auto space-y-8">
+        <!-- DASHBOARD -->
+        <section id="tab-dashboard" class="fade-in space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight">Resumen</h2>
+              <p class="text-gray-500">Vista general del sistema</p>
+            </div>
+            <button id="btnDashRefresh" class="btn btn-ghost text-sm"><i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              Actualizar</button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="card p-6">
+              <h3 class="font-medium text-gray-500 mb-4 text-sm uppercase tracking-wider">Tareas</h3>
+              <canvas id="chartAssignments"></canvas>
+            </div>
+            <div class="card p-6">
+              <h3 class="font-medium text-gray-500 mb-4 text-sm uppercase tracking-wider">Validaciones</h3>
+              <canvas id="chartValidation"></canvas>
+            </div>
+            <div class="card p-6">
+              <h3 class="font-medium text-gray-500 mb-4 text-sm uppercase tracking-wider">Usuarios</h3>
+              <canvas id="chartUsers"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- LOGIN -->
+        <section id="tab-login" class="fade-in hidden flex items-center justify-center min-h-[60vh]">
+          <div class="card p-8 w-full max-w-md space-y-6">
+            <div class="text-center space-y-2">
+              <div class="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+              </div>
+              <h2 class="text-2xl font-bold">Bienvenido</h2>
+              <p class="text-gray-500">Ingresa tus credenciales para continuar</p>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-1.5">Email</label>
+                <input id="email" class="input" placeholder="admin@demo.com" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1.5">Contraseña</label>
+                <input id="password" type="password" class="input" placeholder="••••••••" />
+              </div>
+              <button id="btnLogin" class="btn btn-primary w-full py-2.5">Iniciar Sesión</button>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 text-center">
+              <button id="btnPing"
+                class="text-xs text-gray-400 hover:text-gray-600 flex items-center justify-center gap-1 mx-auto">
+                <i data-lucide="activity" class="w-3 h-3"></i> System Status
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- DISEÑADOR -->
+        <section id="tab-designer" class="hidden space-y-6 fade-in">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold">Panel de Diseño</h2>
+              <p class="text-gray-500">Gestiona tus tareas y validaciones</p>
+            </div>
+            <span class="tag tag-des">DESIGNER</span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6">
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg">Mis Tareas</h3>
+                <button id="btnMyAssignments" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                    class="w-4 h-4"></i></button>
+              </div>
+
+              <!-- Notifications Area -->
+              <div id="designerNotifications" class="mb-4 space-y-2 hidden"></div>
+
+              <div id="assignmentsBox" class="mt-2">
+                <div class="skeleton"></div>
+                <div class="skeleton mt-2"></div>
+              </div>
+            </div>
+
+            <div class="card p-6 space-y-6">
+              <div>
+                <h3 class="font-semibold text-lg mb-4">Validación Rápida</h3>
+                <div class="flex gap-3">
+                  <input id="designerModelKey" class="input max-w-xs" placeholder="SKU-001" />
+                  <button id="btnExpected" class="btn btn-ghost">Ver textos</button>
+                  <button id="btnValidate" class="btn btn-indigo">Validar OCR</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">Datos Esperados</h4>
+                  <pre id="expectedBox" class="h-48 text-xs"></pre>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">Resultado Validación</h4>
+                  <pre id="validateBox" class="h-48 text-xs"></pre>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-100">
+                <span id="submitHint" class="text-sm text-gray-400">Valida correctamente para enviar</span>
+                <button id="btnSubmit" class="btn btn-green" disabled>Enviar al Admin</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STUDIO -->
+        <section id="tab-studio" class="hidden fade-in">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <button id="btnStudioBack" class="btn btn-ghost p-2"><i data-lucide="arrow-left"
+                  class="w-5 h-5"></i></button>
+              <div>
+                <h2 class="text-2xl font-bold flex items-center gap-3">
+                  Studio <span id="studioModelKey" class="text-gray-400 font-normal">SKU-???</span>
+                </h2>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button id="btnStudioLoadTexts" class="btn btn-ghost">Cargar textos</button>
+              <button id="btnStudioAskIA" class="btn btn-indigo"><i data-lucide="sparkles" class="w-4 h-4"></i> IA
+                Contexto</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
+            <!-- Left: Context & Text -->
+            <div class="lg:col-span-1 space-y-6 flex flex-col h-full">
+              <div class="card p-4 flex-1 flex flex-col min-h-0">
+                <h3 class="font-medium mb-3 text-sm uppercase tracking-wider text-gray-500">Textos del Modelo</h3>
+                <pre id="studioTexts" class="flex-1 text-xs overflow-auto"></pre>
+              </div>
+              <div class="card p-4 flex-1 flex flex-col min-h-0">
+                <h3 class="font-medium mb-2 text-sm uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                  <i data-lucide="bot" class="w-4 h-4"></i> Asistente
+                </h3>
+                <div id="studioIABox" class="flex-1 overflow-auto text-sm text-gray-600 mb-2 p-2 bg-subtle rounded">
+                </div>
+                <div class="flex gap-2">
+                  <input id="studioChatInput" class="input text-xs py-1.5" placeholder="Pregunta sobre el contexto..."
+                    disabled />
+                  <button id="btnStudioChatSend" class="btn btn-primary btn-sm px-3" disabled><i data-lucide="send"
+                      class="w-3 h-3"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Upload & Validate -->
+            <div class="lg:col-span-2 card p-6 flex flex-col">
+              <div class="grid grid-cols-2 gap-8 h-full">
+                <div class="flex flex-col gap-4">
+                  <div
+                    class="border-2 border-dashed border-gray-200 rounded-xl flex-1 flex flex-col items-center justify-center p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative overflow-hidden">
+                    <input id="studioFile" type="file" accept=".pdf,.png,.jpg,.jpeg"
+                      class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                    <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-3">
+                      <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                    </div>
+                    <p class="font-medium text-gray-900">Sube tu diseño</p>
+                    <p class="text-sm text-gray-500 mt-1">PDF, PNG o JPG</p>
+
+                    <!-- Success Overlay -->
+                    <div id="uploadSuccess" class="upload-success-overlay hidden pointer-events-none">
+                      <div class="check-anim"><i data-lucide="check" class="w-8 h-8"></i></div>
+                      <p class="mt-4 font-medium text-green-500">¡Archivo Subido!</p>
+                    </div>
+                  </div>
+                  <button id="btnStudioUpload" class="btn btn-primary w-full">Procesar Archivo</button>
+                  <pre id="studioUploadResp" class="text-xs h-32 hidden"></pre>
+                </div>
+
+                <div class="flex flex-col gap-4">
+                  <div class="flex-1 bg-subtle rounded-xl p-4 overflow-auto">
+                    <h4 class="font-medium mb-2 text-sm text-gray-500">Resultados de Validación</h4>
+                    <pre id="studioValidateBox" class="text-xs bg-transparent p-0 border-none"></pre>
+                  </div>
+
+                  <div class="grid grid-cols-1 gap-2">
+                    <button id="btnStudioValidate" class="btn btn-indigo w-full">Validar Contenido</button>
+                    <div class="flex gap-2">
+                      <button id="btnStudioSend" class="btn btn-success flex-1" disabled>Enviar</button>
+                      <button id="btnStudioRequest" class="btn btn-ghost flex-1" disabled>Solicitar Aprob.</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- LÍDER -->
+        <section id="tab-leader" class="hidden space-y-6 fade-in">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold">Panel de Líder</h2>
+              <p class="text-gray-500">Gestión de tareas y equipo</p>
+            </div>
+            <span class="tag tag-lead">LEADER</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card p-6 space-y-4">
+              <h3 class="font-semibold text-lg">Nueva Tarea</h3>
+              <div class="space-y-3">
+                <input id="taskModelKey" class="input" placeholder="SKU (ej. SKU-001)" />
+                <input id="taskTitle" class="input" placeholder="Título del proyecto" />
+                <input id="taskPackaging" class="input" placeholder="Tipo de empaque / esqueleto (ej. Full Color Box)" />
+                <div class="grid grid-cols-2 gap-3">
+                  <select id="taskRetailer" class="input">
+                    <option value="" disabled selected>Selecciona Retailer</option>
+                    <option value="Soriana">Soriana</option>
+                    <option value="Heb">Heb</option>
+                    <option value="Liverpool">Liverpool</option>
+                    <option value="Sears">Sears</option>
+                    <option value="Calimax">Calimax</option>
+                    <option value="Chedraui">Chedraui</option>
+                    <option value="La Comer">La Comer</option>
+                    <option value="Coppel">Coppel</option>
+                    <option value="City Club">City Club</option>
+                    <option value="DSW">DSW</option>
+                    <option value="3B">3B</option>
+                  </select>
+                  <input id="taskDeadline" type="date" class="input" />
+                </div>
+                <textarea id="taskDesc" class="input min-h-[80px]" placeholder="Descripción detallada..."></textarea>
+                <button id="btnCreateTask" class="btn btn-primary w-full">Crear Tarea</button>
+              </div>
+              <pre id="taskCreateResp" class="hidden"></pre>
+            </div>
+
+            <div class="card p-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-lg">Delegar</h3>
+                <button id="btnRefreshDelegation" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                    class="w-4 h-4"></i></button>
+              </div>
+              <div class="space-y-3">
+                <select id="selectAssignment" class="input" multiple size="5"></select>
+                <p class="text-xs text-gray-400">Mantén Ctrl/Cmd para seleccionar varias</p>
+                <select id="selectDesigner" class="input"></select>
+                <button id="btnDelegate" class="btn btn-green w-full">Asignar Tarea</button>
+              </div>
+              <pre id="delegateResp" class="hidden"></pre>
+            </div>
+          </div>
+
+          <!-- Leader Metrics -->
+          <div class="card p-6">
+            <h3 class="font-semibold text-lg mb-4">Métricas de Diseñadores</h3>
+            <div class="flex gap-3 mb-4">
+              <select id="metricsDesignerSelect" class="input max-w-xs"></select>
+              <button id="btnLoadMetrics" class="btn btn-primary">Ver Métricas</button>
+            </div>
+            <div id="designerMetricsContainer" class="hidden space-y-4">
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <!-- Total -->
+                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                  <div class="radial-progress text-primary" style="--value:100; --size:4rem;" role="progressbar">
+                    <span id="metTotal" class="text-lg font-bold text-base-content">0</span>
+                  </div>
+                  <div class="text-sm mt-2 font-medium opacity-70">Total Asignadas</div>
+                </div>
+
+                <!-- Completadas -->
+                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                  <div id="ringCompleted" class="radial-progress text-success" style="--value:0; --size:4rem;"
+                    role="progressbar">
+                    <span id="metCompleted" class="text-lg font-bold text-base-content">0</span>
+                  </div>
+                  <div class="text-sm mt-2 font-medium opacity-70">Completadas</div>
+                </div>
+
+                <!-- Pendientes -->
+                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                  <div id="ringPending" class="radial-progress text-warning" style="--value:0; --size:4rem;"
+                    role="progressbar">
+                    <span id="metPending" class="text-lg font-bold text-base-content">0</span>
+                  </div>
+                  <div class="text-sm mt-2 font-medium opacity-70">Pendientes</div>
+                </div>
+
+                <!-- Tiempo Promedio (No circle, just icon) -->
+                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                  <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-1">
+                    <i data-lucide="clock" class="w-8 h-8"></i>
+                  </div>
+                  <span id="metAvgTime" class="text-lg font-bold text-base-content">0</span>
+                  <div class="text-sm mt-1 font-medium opacity-70">Hrs Promedio</div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 class="text-sm font-medium mb-2">Proyectos por Tipo</h4>
+                  <canvas id="chartMetProjects"></canvas>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium mb-2">Errores Comunes</h4>
+                  <canvas id="chartMetErrors"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="card p-6 flex items-center gap-4">
+              <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Total Tareas</p>
+                <h3 id="leaderTotalTasks" class="text-2xl font-bold">0</h3>
+              </div>
+            </div>
+            <div class="card p-6 flex items-center gap-4">
+              <div class="p-3 bg-green-100 text-green-600 rounded-full">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Aprobadas</p>
+                <h3 id="leaderTotalApproved" class="text-2xl font-bold">0</h3>
+              </div>
+            </div>
+            <div class="card p-6 flex items-center gap-4">
+              <div class="p-3 bg-amber-100 text-amber-600 rounded-full">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Pendientes</p>
+                <h3 id="leaderTotalPending" class="text-2xl font-bold">0</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cargar Base de Datos (Excel) -->
+          <div class="card p-6 mb-6">
+            <h3 class="font-semibold text-lg mb-4">Cargar Base de Datos (Excel)</h3>
+            <div class="flex gap-3">
+              <input id="excelModelKey" class="input max-w-xs" placeholder="SKU Relacionado" />
+              <input id="excelFile" type="file" accept=".xlsx,.xls" class="input" />
+              <button id="btnUploadExcel" class="btn btn-indigo">Subir Archivo</button>
+            </div>
+            <pre id="excelResp" class="mt-4 hidden"></pre>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Tareas Asignadas -->
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg text-blue-600 flex items-center gap-2">
+                  <i data-lucide="user-check" class="w-5 h-5"></i> Tareas Asignadas
+                </h3>
+                <button id="btnLeaderAssigned" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                    class="w-4 h-4"></i></button>
+              </div>
+              <div id="leaderAssignedBox">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+
+            <!-- Tareas Rechazadas -->
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg text-red-600 flex items-center gap-2">
+                  <i data-lucide="alert-circle" class="w-5 h-5"></i> Tareas Rechazadas
+                </h3>
+                <button id="btnLeaderRejected" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                    class="w-4 h-4"></i></button>
+              </div>
+              <div id="leaderRejectedBox">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+
+            <!-- Tareas Aprobadas (Finalizadas) -->
+            <div class="card p-6 col-span-1 lg:col-span-2">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg text-green-600 flex items-center gap-2">
+                  <i data-lucide="check-circle-2" class="w-5 h-5"></i> Tareas Aprobadas
+                </h3>
+                <button id="btnLeaderApproved" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                    class="w-4 h-4"></i></button>
+              </div>
+              <div id="leaderApprovedBox" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6">
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg text-amber-600 flex items-center gap-2">
+                  <i data-lucide="clock" class="w-5 h-5"></i> Validaciones Pendientes
+                </h3>
+                <button id="btnLeaderValidations" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                    class="w-4 h-4"></i></button>
+              </div>
+              <div id="leaderValidationsBox">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+
+
+          </div>
+        </section>
+
+        <!-- ADMIN -->
+        <section id="tab-admin" class="hidden space-y-6 fade-in">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold">Administración</h2>
+              <p class="text-gray-500">Control total del sistema</p>
+            </div>
+            <span class="tag tag-admin">ADMIN</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 card p-6">
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="font-semibold text-lg">Usuarios del Sistema</h3>
+                <div class="flex gap-2">
+                  <button id="btnListUsers" class="btn btn-ghost btn-sm">Refrescar</button>
+                  <button id="btnOpenCreateUser" class="btn btn-primary btn-sm">Nuevo Usuario</button>
+                </div>
+              </div>
+              <div id="usersBox" class="space-y-2">
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+              </div>
+            </div>
+
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="font-semibold text-lg">Diseños Aprobados</h3>
+                <button id="btnLoadValidations" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                    class="w-4 h-4"></i></button>
+              </div>
+              <div id="validationsBox">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ARCHIVOS -->
+        <section id="tab-files" class="hidden fade-in space-y-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold">Explorador de Archivos</h2>
+            <button id="btnFilesListLatest" class="btn btn-ghost">Ver Recientes</button>
+          </div>
+
+          <div class="card p-6">
+            <div class="flex gap-3 mb-6">
+              <input id="filesModelKey" class="input max-w-sm" placeholder="Buscar por SKU..." />
+              <button id="btnFilesList" class="btn btn-primary">Buscar</button>
+              <a class="btn btn-ghost ml-auto" href="/uploads" target="_blank">Abrir carpeta <i
+                  data-lucide="external-link" class="w-4 h-4 ml-2"></i></a>
+            </div>
+            <div id="filesBox" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+          </div>
+        </section>
+
+        <!-- ESQUELETOS -->
+        <section id="tab-templates" class="hidden fade-in space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold flex items-center gap-2">
+                <i data-lucide="box" class="w-6 h-6 text-indigo-500"></i> Esqueletos (.ai)
+              </h2>
+              <p class="text-gray-500">Sube y gestiona las plantillas base para los diseñadores.</p>
+            </div>
+            <span class="tag tag-lead">LEADER/ADMIN</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 card p-6 space-y-4 bg-gradient-to-b from-indigo-50 to-white border border-indigo-100">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center">
+                  <i data-lucide="upload" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Subir esqueleto</h3>
+                  <p class="text-sm text-gray-500">Formato .ai o .pdf. Nómbralo según el tipo de empaque.</p>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="form-control">
+                  <label class="label"><span class="label-text text-sm font-medium">Tipo de empaque</span></label>
+                  <input type="text" id="skeletonType" class="input" placeholder="Ej: Full Color Box" />
+                </div>
+                <div class="form-control">
+                  <label class="label"><span class="label-text text-sm font-medium">Archivo .ai / .pdf</span></label>
+                  <input type="file" id="skeletonFile" class="file-input" accept=".ai,.pdf" />
+                </div>
+                <button id="btnUploadSkeleton" class="btn btn-primary w-full">Subir esqueleto</button>
+              </div>
+            </div>
+
+            <div class="lg:col-span-2 card p-6">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h3 class="font-semibold text-lg">Biblioteca de esqueletos</h3>
+                  <p class="text-sm text-gray-500">Descarga o elimina plantillas disponibles.</p>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="loadSkeletons({ force: true })">
+                  <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div id="skeletonList" class="space-y-2 min-h-[140px]">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-indigo-50 text-indigo-900 border border-indigo-100 flex items-start gap-3 p-4 rounded-lg">
+            <i data-lucide="lightbulb" class="w-5 h-5 mt-0.5"></i>
+            <div class="text-sm leading-relaxed">
+              Asigna el mismo nombre de “Tipo de empaque” cuando crees la tarea (campo “Tipo de empaque / esqueleto”).
+              Los diseñadores verán un botón de descarga automático si coincide.
+            </div>
+          </div>
+        </section>
+
+        <!-- DISEÑOS (APPROVED) -->
+        <section id="tab-designs" class="hidden fade-in space-y-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold">Diseños Aprobados</h2>
+            <button id="btnRefreshDesigns" class="btn btn-ghost"><i data-lucide="refresh-cw"
+                class="w-4 h-4"></i></button>
+          </div>
+          <div id="designsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <!-- Designs will be loaded here -->
+          </div>
+        </section>
+
+        <!-- ASISTENTE GLOBAL -->
+        <section id="tab-assistant" class="hidden fade-in h-[calc(100vh-8rem)] flex flex-col">
+          <div class="card flex-1 flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-white z-10">
+              <h2 class="text-lg font-semibold flex items-center gap-2">
+                <i data-lucide="bot" class="w-5 h-5 text-blue-500"></i> Asistente IA
+              </h2>
+              <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">GPT-4o</span>
+            </div>
+
+            <div id="assistBox" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
+              <!-- Chat messages will appear here -->
+            </div>
+
+            <div class="p-4 bg-white border-t border-gray-100">
+              <div class="flex gap-3">
+                <input id="assistImage" class="input w-1/3" placeholder="URL imagen (opcional)" />
+                <div class="flex-1 relative">
+                  <input id="assistMsg" class="input pr-12" placeholder="Escribe tu mensaje..." />
+                  <button id="btnAssistSend"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="tab-settings" class="hidden fade-in space-y-6">
+          <h2 class="text-2xl font-bold">Configuración</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card p-6">
+              <h3 class="font-semibold text-lg mb-4">Apariencia</h3>
+              <div class="flex gap-3">
+                <button id="btnThemeCrimson" class="hidden">Legacy Crimson</button>
+                <!-- Hidden as we moved to Light/Dark -->
+                <div class="text-sm text-gray-500">
+                  El tema actual se controla desde el botón de la barra superior (Sol/Luna).
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-6">
+              <h3 class="font-semibold text-lg mb-4">Sistema</h3>
+              <div class="space-y-3">
+                <button id="btnResetThread" class="btn btn-red w-full justify-start"><i data-lucide="message-square-off"
+                    class="w-4 h-4"></i> Reiniciar conversación IA</button>
+                <button id="btnClearCache" class="btn btn-ghost w-full justify-start border border-gray-200"><i
+                    data-lucide="trash-2" class="w-4 h-4"></i> Limpiar caché local</button>
+              </div>
+              <pre id="cfgState" class="mt-4 text-xs hidden"></pre>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Lógica de la UI -->
+  <!-- User Guide Modal -->
+  <dialog id="guideModal" class="modal">
+    <div class="modal-box w-11/12 max-w-5xl p-0 overflow-hidden bg-white shadow-2xl">
+      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-semibold text-lg">Guía de Uso</h3>
+            <p class="text-sm text-white/80">Pasos rápidos personalizados para tu rol</p>
+          </div>
+        </div>
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost text-white hover:bg-white/10">✕</button>
+        </form>
+      </div>
+      <div class="p-6 bg-gray-50">
+        <div id="guideContent" class="space-y-3 text-sm text-gray-700">
+          <!-- Content injected by JS -->
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/js/app.js"></script>
+</body>
+
+</html>

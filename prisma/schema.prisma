@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  LEADER
+  DESIGNER
+}
+
+enum AssignmentStatus {
+  NEW
+  IN_PROGRESS
+  REVIEW
+  REVIEW_REQUESTED
+  DONE
+  REJECTED
+}
+
+enum IaStatus {
+  PENDING
+  APPROVED
+  WARNING
+  FAILED
+}
+
+enum LeaderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum FileKind {
+  DESIGN
+  REVIEW
+  SUPPORT
+  TEMPLATE
+  OTHER
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model Team {
+  id        Int      @id @default(autoincrement())
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role
+  teamId    Int?
+  team      Team?    @relation(fields: [teamId], references: [id])
+  timezone  String?  @default("UTC")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdAssignments  Assignment[] @relation("CreatedBy")
+  assignedAssignments Assignment[] @relation("AssignedTo")
+  uploadedTemplates   Template[]
+  uploadedFiles       FileAsset[]
+  threads             ChatThread[]
+  reviewsSubmitted    Review[]     @relation("ReviewSubmittedBy")
+}
+
+model Assignment {
+  id           Int               @id @default(autoincrement())
+  modelKey     String
+  title        String
+  description  String?
+  status       AssignmentStatus  @default(NEW)
+  projectType  String?
+  retailer     String?
+  deadline     DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  completedAt  DateTime?
+
+  createdById  Int
+  createdBy    User              @relation("CreatedBy", fields: [createdById], references: [id])
+
+  assigneeId   Int?
+  assignee     User?             @relation("AssignedTo", fields: [assigneeId], references: [id])
+
+  validations  ValidationLog[]
+  reviews      Review[]
+  files        FileAsset[]
+}
+
+model ValidationLog {
+  id           Int        @id @default(autoincrement())
+  assignmentId Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  status       String
+  reason       String?
+  createdAt    DateTime   @default(now())
+}
+
+model Review {
+  id             Int           @id @default(autoincrement())
+  assignmentId   Int
+  assignment     Assignment    @relation(fields: [assignmentId], references: [id])
+  iaStatus       IaStatus      @default(PENDING)
+  leaderStatus   LeaderStatus  @default(PENDING)
+  notes          String?
+  fileUrl        String?
+  fileName       String?
+  submittedById  Int?
+  submittedBy    User?         @relation("ReviewSubmittedBy", fields: [submittedById], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Template {
+  id           Int      @id @default(autoincrement())
+  type         String
+  name         String?
+  filename     String
+  originalName String
+  uploadedById Int?
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+model FileAsset {
+  id           Int        @id @default(autoincrement())
+  modelKey     String?
+  type         FileKind   @default(OTHER)
+  filename     String
+  path         String
+  url          String?
+  uploadedById Int?
+  uploadedBy   User?      @relation(fields: [uploadedById], references: [id])
+  assignmentId Int?
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
+  createdAt    DateTime   @default(now())
+}
+
+model ChatThread {
+  id        String        @id @default(uuid())
+  userId    Int?
+  user      User?         @relation(fields: [userId], references: [id])
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id        String      @id @default(uuid())
+  threadId  String
+  thread    ChatThread  @relation(fields: [threadId], references: [id])
+  role      MessageRole
+  content   String
+  imageUrl  String?
+  createdAt DateTime    @default(now())
+}
