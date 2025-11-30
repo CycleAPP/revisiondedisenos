@@ -1,6 +1,9 @@
 // backend/src/routes/teams.routes.js
 import { Router } from "express";
+import { auth } from "../middlewares/auth.js";
 import { listTeamsService } from "../services/teams.service.js";
+
+const router = Router();
 
 router.get("/", auth, async (_req, res) => {
     try {

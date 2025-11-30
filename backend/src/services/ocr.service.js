@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GoogleAIFileManager } from "@google/generative-ai/server";
 import { analyzePdf } from "./azure.service.js";
 import { parseTextWithOpenAI, analyzeImageWithOpenAI } from "./openai.service.js";
 
@@ -12,27 +11,33 @@ const __dirname = path.dirname(__filename);
 // Initialize Google AI Client
 const apiKey = process.env.GOOGLE_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const fileManager = apiKey ? new GoogleAIFileManager(apiKey) : null;
 // UPGRADE: Use gemini-1.5-pro for better reasoning and vision capabilities
 const geminiModel = genAI ? genAI.getGenerativeModel({ model: "gemini-1.5-flash" }) : null;
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20 MB limit
 
 /**
- * Uploads a file to Gemini for processing.
+ * Prepare file for Gemini processing using inline data.
+ * Modern approach that doesn't require file upload API.
  */
 async function uploadToGemini(filePath, mimeType) {
   try {
-    const uploadResult = await fileManager.uploadFile(filePath, {
-      mimeType,
-      displayName: path.basename(filePath),
-    });
-    const file = uploadResult.file;
-    console.log(`[ocr] Uploaded file ${file.displayName} as: ${file.name} (${file.uri})`);
-    return file.uri;
+    // For newer versions, we can use inline data instead of uploading
+    const fileData = fs.readFileSync(filePath);
+    const base64Data = fileData.toString('base64');
+
+    console.log(`[ocr] Prepared file ${path.basename(filePath)} for Gemini (${mimeType})`);
+
+    // Return inline data format for Gemini
+    return {
+      inlineData: {
+        data: base64Data,
+        mimeType: mimeType
+      }
+    };
   } catch (error) {
-    console.error("[ocr] Error uploading file to Gemini:", error);
-    throw new Error(`Failed to upload file to Gemini: ${error.message}`);
+    console.error("[ocr] Error preparing file for Gemini:", error);
+    throw new Error(`Failed to prepare file for Gemini: ${error.message}`);
   }
 }
 
