@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
  *  [AVISO] ./src/routes/xxx.routes.js no disponible. ...
  */
 
-const routesBase = "./src/routes";
+const routesBase = path.join(__dirname, "src/routes");
 
 const authRoutes = await mountOrDummy(`${routesBase}/auth.routes.js`);
 const usersRoutes = await mountOrDummy(`${routesBase}/users.routes.js`);
