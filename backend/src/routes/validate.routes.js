@@ -8,7 +8,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import { createCanvas, loadImage } from "canvas";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+import * as pdfjsLib from "pdfjs-dist/build/pdf.js";
 
 // Disable worker for Node.js environment
 pdfjsLib.GlobalWorkerOptions.workerSrc = "";
