@@ -20,7 +20,12 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
-    "prisma": "^6.18.0"
+    "prisma": "^6.18.0",
+    "xlsx": "^0.18.5",
+    "canvas": "^2.11.2",
+    "openai": "^4.28.0",
+    "@google/generative-ai": "^0.2.1",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
