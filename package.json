@@ -25,7 +25,8 @@
     "canvas": "^2.11.2",
     "openai": "^4.28.0",
     "@google/generative-ai": "^0.2.1",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "pdfjs-dist": "^3.11.174"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
