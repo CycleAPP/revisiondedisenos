@@ -6,3 +6,4 @@ node_modules
 backend/src/data/expected/Master file (integrado).xlsx
 **/node_modules
 backend/src/uploads
+generated/client
