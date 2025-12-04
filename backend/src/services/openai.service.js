@@ -43,6 +43,7 @@ function getOpenAIClient() {
 
   openaiInstance = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
+    timeout: 60000, // 60 seconds timeout
   });
 
   return openaiInstance;
