@@ -399,10 +399,12 @@ router.post("/:modelKey", auth, (req, res) => {
             r.found = "Validado externamente";
           }
         });
-        // Re-evaluate overall status if needed, but usually frontend checks individual items.
-        // If "MISSING" list is generated from this, we need to ensure it's updated.
-        // normalizeGlobalValidation might have already set overallStatus. 
-        // Let's re-check overall status.
+
+        // Fix: Also remove from 'missing' list if present
+        if (globalValidation.missing && Array.isArray(globalValidation.missing)) {
+          globalValidation.missing = globalValidation.missing.filter(m => !m.includes("Año") && !m.includes("Year"));
+        }
+
         const anyMissing = globalValidation.requirements.some(r => r.status !== "OK" && r.type !== "VISUAL");
         if (!anyMissing) globalValidation.overallStatus = "APPROVED";
       }
