@@ -360,7 +360,9 @@ router.post("/:modelKey", auth, (req, res) => {
       }
 
       const latest = designFiles[0];
-      const localPath = path.join(__dirname, "..", "uploads", latest.filename);
+      // Fix: DB record has 'path' (URL) but not 'filename'. Fallback object has 'filename'.
+      const filename = latest.filename || path.basename(latest.path);
+      const localPath = path.join(__dirname, "..", "uploads", filename);
 
       let ocrData;
       try {
