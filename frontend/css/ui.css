@@ -649,3 +649,54 @@ body.theme-dark .upload-success-overlay {
     opacity: 1;
   }
 }
+
+/* === DRAWER (Side Panel) === */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--bg-card);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: 101;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-right.open {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}

@@ -1496,62 +1496,30 @@ function renderSkeletonButton(projectType) {
 setInterval(() => loadSkeletons({ force: true }), 10000); // Refresh periodically
 setTimeout(() => loadSkeletons({ force: true }), 1000); // Initial load
 
-/* -------------------------- User Guide -------------------------- */
+/* -------------------------- Guía de Usuario (Drawer) -------------------------- */
 window.showUserGuide = () => {
-  const role = session.role;
-  const hero = (title, subtitle, accent) => `
-    <div class="flex items-center gap-3 mb-3">
-      <div class="w-10 h-10 rounded-full ${accent} text-white flex items-center justify-center">
-        <i data-lucide="sparkles" class="w-5 h-5"></i>
-      </div>
-      <div>
-        <h4 class="text-lg font-semibold">${title}</h4>
-        <p class="text-sm text-gray-500">${subtitle}</p>
-      </div>
-    </div>
-  `;
-
-  const step = (n, title, desc) => `
-    <div class="flex gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-      <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">${n}</div>
-      <div>
-        <p class="font-semibold">${title}</p>
-        <p class="text-sm text-gray-600">${desc}</p>
-      </div>
-    </div>
-  `;
-
-  const cards = {
-    DESIGNER: `
-      ${hero("Guía rápida: Diseñador", "Descarga el esqueleto, valida y envía", "bg-indigo-600")}
-      <div class="space-y-2">
-        ${step(1, "Revisa tus tareas", "En “Mis Tareas” ves tus pendientes. Si hay un esqueleto, aparece un botón azul “AI” para descargar el .ai/.pdf.")}
-        ${step(2, "Abre Studio", "Pulsa “Studio” para cargar textos esperados y contexto.")}
-        ${step(3, "Valida con IA", "Sube tu arte (PDF/PNG/JPG) y ejecuta “Validar Contenido”. Corrige según las observaciones.")}
-        ${step(4, "Envía o solicita aprobación", "Cuando esté listo, pulsa “Enviar” o “Solicitar Aprob.”. Revisa notificaciones de rechazos en tu panel.")}
-      </div>
-    `,
+  `,
     LEADER: `
-      ${hero("Guía rápida: Líder", "Crea tareas, sube esqueletos y aprueba", "bg-amber-500")}
-      <div class="space-y-2">
-        ${step(1, "Crear + Delegar", "En “Panel de Líder” crea tareas y asígnalas al diseñador correcto.")}
-        ${step(2, "Subir esqueletos", "En “Esqueletos (.ai)” sube plantillas por tipo de empaque (ej. Full Color Box). El nombre debe coincidir con el campo “Tipo de empaque / esqueleto” de la tarea.")}
-        ${step(3, "Validar envíos", "Revisa “Validaciones Pendientes” y aprueba o rechaza con notas claras.")}
-        ${step(4, "Métricas", "Monitorea rendimiento y errores frecuentes para priorizar coaching.")}
-      </div>
-    `,
+      ${ hero("Guía rápida: Líder", "Crea tareas, sube esqueletos y aprueba", "bg-amber-500") }
+  <div class="space-y-2">
+    ${step(1, "Crear + Delegar", "En “Panel de Líder” crea tareas y asígnalas al diseñador correcto.")}
+    ${step(2, "Subir esqueletos", "En “Esqueletos (.ai)” sube plantillas por tipo de empaque (ej. Full Color Box). El nombre debe coincidir con el campo “Tipo de empaque / esqueleto” de la tarea.")}
+    ${step(3, "Validar envíos", "Revisa “Validaciones Pendientes” y aprueba o rechaza con notas claras.")}
+    ${step(4, "Métricas", "Monitorea rendimiento y errores frecuentes para priorizar coaching.")}
+  </div>
+  `,
     ADMIN: `
-      ${hero("Guía rápida: Admin", "Gobierna usuarios y accesos", "bg-emerald-600")}
-      <div class="space-y-2">
-        ${step(1, "Usuarios", "Crea, lista y gestiona roles desde la pestaña Admin.")}
-        ${step(2, "Auditoría", "Accede a Archivos y Diseños aprobados para control de calidad.")}
-        ${step(3, "Soporte", "Ayuda a líderes/diseñadores a restablecer sesiones o permisos.")}
-      </div>
-    `,
+      ${ hero("Guía rápida: Admin", "Gobierna usuarios y accesos", "bg-emerald-600") }
+  <div class="space-y-2">
+    ${step(1, "Usuarios", "Crea, lista y gestiona roles desde la pestaña Admin.")}
+    ${step(2, "Auditoría", "Accede a Archivos y Diseños aprobados para control de calidad.")}
+    ${step(3, "Soporte", "Ayuda a líderes/diseñadores a restablecer sesiones o permisos.")}
+  </div>
+  `,
     UNKNOWN: `
-      ${hero("Guía rápida", "Inicia sesión para ver tu flujo", "bg-gray-500")}
-      <p class="text-sm text-gray-600">Accede con tus credenciales para ver la guía personalizada de tu rol.</p>
-    `
+      ${ hero("Guía rápida", "Inicia sesión para ver tu flujo", "bg-gray-500") }
+  <p class="text-sm text-gray-600">Accede con tus credenciales para ver la guía personalizada de tu rol.</p>
+  `
   };
 
   $("guideContent").innerHTML = cards[role] || cards.UNKNOWN;

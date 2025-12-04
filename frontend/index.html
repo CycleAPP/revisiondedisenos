@@ -77,7 +77,7 @@
             class="w-5 h-5"></i></button>
         <button class="nav-icon" data-tab="tab-files" title="Archivos"><i data-lucide="folder-open"
             class="w-5 h-5"></i></button>
-        <button class="nav-icon" onclick="showUserGuide()" title="Ayuda"><i data-lucide="help-circle"></i></button>
+
         <button class="nav-icon hidden" data-tab="tab-designs" title="Diseños"><i data-lucide="image"
             class="w-5 h-5"></i></button>
         <button class="nav-icon" data-tab="tab-assistant" title="Asistente IA"><i data-lucide="bot"
@@ -85,6 +85,8 @@
       </div>
 
       <div class="mt-auto flex flex-col gap-2 w-full px-2">
+        <button class="nav-icon" onclick="showUserGuide()" title="Ayuda"><i data-lucide="help-circle"
+            class="w-5 h-5"></i></button>
         <button class="nav-icon" data-tab="tab-settings" title="Configuración"><i data-lucide="settings"
             class="w-5 h-5"></i></button>
         <button id="btnLogout" class="nav-icon text-red-500 hover:bg-red-50 hover:text-red-600" title="Salir"><i
@@ -730,29 +732,24 @@
 
   <!-- Lógica de la UI -->
   <!-- User Guide Modal -->
-  <dialog id="guideModal" class="modal">
-    <div class="modal-box w-11/12 max-w-5xl p-0 overflow-hidden bg-white shadow-2xl">
-      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
-            <i data-lucide="book-open" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-semibold text-lg">Guía de Uso</h3>
-            <p class="text-sm text-white/80">Pasos rápidos personalizados para tu rol</p>
-          </div>
+  <!-- User Guide Drawer -->
+  <div id="guideBackdrop" class="drawer-backdrop" onclick="closeUserGuide()"></div>
+  <aside id="guideDrawer" class="drawer-right">
+    <div class="drawer-header">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
         </div>
-        <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost text-white hover:bg-white/10">✕</button>
-        </form>
+        <h3 class="font-semibold text-lg">Guía de Uso</h3>
       </div>
-      <div class="p-6 bg-gray-50">
-        <div id="guideContent" class="space-y-3 text-sm text-gray-700">
-          <!-- Content injected by JS -->
-        </div>
-      </div>
+      <button onclick="closeUserGuide()" class="btn btn-ghost btn-sm p-2 rounded-full hover:bg-gray-100">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
     </div>
-  </dialog>
+    <div id="guideContent" class="drawer-content space-y-4 text-sm text-gray-600 leading-relaxed">
+      <!-- Content injected by JS -->
+    </div>
+  </aside>
 
   <script src="/js/app.js"></script>
 </body>
