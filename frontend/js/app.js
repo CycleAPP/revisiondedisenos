@@ -1156,7 +1156,7 @@ async function updateReviewStatus(id, action) {
   });
 
   const j = await r.json();
-  const j = await r.json();
+
   if (r.ok && j.ok) {
     Swal.fire({
       title: action === "approve" ? '¡Aprobado!' : 'Rechazado',
