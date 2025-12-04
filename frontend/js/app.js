@@ -1468,8 +1468,8 @@ async function loadDashboardCharts() {
     const counts = statuses.map(s => (a.data || []).filter(x => x.status === s).length);
     drawChart("chartAssignments", "Tareas por estado", statuses, counts, ["#FF4D67", "#FF7C98", "#a855f7", "#22d3ee"]);
 
-    const ok = (v.data || []).filter(x => x.status === "OK").length;
-    const fail = (v.data || []).filter(x => x.status !== "OK").length;
+    const ok = (v.data || []).filter(x => x.iaStatus === "OK").length;
+    const fail = (v.data || []).filter(x => x.iaStatus !== "OK").length;
     drawChart("chartValidation", "Validaciones", ["OK", "FALLA"], [ok, fail], ["#22c55e", "#ef4444"]);
 
     const roles = ["ADMIN", "LEADER", "DESIGNER"];
