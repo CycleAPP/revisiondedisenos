@@ -14,11 +14,18 @@ echo "📊 Paso 1: Backup de usuarios..."
 node scripts/backup-users.js
 
 echo ""
-echo "🗑️  Paso 2: Reseteando base de datos..."
+echo "🔧 Paso 2: Cargando variables de entorno..."
+set -a
+source ../.env
+set +a
+echo "✅ Variables cargadas"
+
+echo ""
+echo "🗑️  Paso 3: Reseteando base de datos..."
 npx prisma migrate reset --force --skip-seed
 
 echo ""
-echo "🔧 Paso 3: Aplicando migraciones..."
+echo "🔧 Paso 4: Aplicando migraciones..."
 npx prisma migrate deploy
 
 echo ""
