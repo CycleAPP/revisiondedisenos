@@ -1,5 +1,5 @@
 import { ok, fail } from "../utils/response.js";
-import { listUsersService, setRoleService, assignToTeamService, getUserMetricsService } from "../services/users.service.js";
+import { listUsersService, setRoleService, assignToTeamService, getUserMetricsService, deleteUserService } from "../services/users.service.js";
 
 export const getMetrics = async (req, res) => {
   try {
@@ -29,5 +29,12 @@ export const assignToTeam = async (req, res) => {
     const { teamId } = req.body;
     const u = await assignToTeamService(userId, teamId);
     return ok(res, { id: u.id, teamId: u.teamId });
+  } catch (e) { return fail(res, e.message); }
+};
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await deleteUserService(Number(id));
+    return ok(res, { message: "User deleted" });
   } catch (e) { return fail(res, e.message); }
 };

@@ -39,3 +39,8 @@ export const getUserMetricsService = async (id) => {
   };
 };
 
+export const deleteUserService = async (id) => {
+  return prisma.user.delete({
+    where: { id }
+  });
+};

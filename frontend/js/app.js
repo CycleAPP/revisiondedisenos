@@ -1101,7 +1101,62 @@ $("btnListUsers").onclick = async () => {
   const r = await fetch(API + "/api/users", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
   const j = await r.json();
   if (!r.ok || !j.ok) return toast(j.message || "Error listando usuarios", "error");
-  $("usersBox").innerHTML = renderTable(["ID", "Nombre", "Email", "Rol", "Team"], (j.data || []).map(u => [u.id, u.name, u.email, roleChip(u.role), u.teamId || "-"]));
+  $("usersBox").innerHTML = renderTable(["ID", "Nombre", "Email", "Rol", "Team", "Acciones"], (j.data || []).map(u => [
+    u.id,
+    u.name,
+    u.email,
+    roleChip(u.role),
+    u.teamId || "-",
+    {
+      html: true,
+      content: `
+        <div class="flex gap-2">
+          <button class="btn btn-xs btn-outline btn-info" onclick="changeUserRole(${u.id}, '${u.role}')" title="Cambiar Rol">
+            <i data-lucide="user-cog" class="w-3 h-3"></i>
+          </button>
+          <button class="btn btn-xs btn-outline btn-error" onclick="deleteUser(${u.id})" title="Eliminar Usuario">
+            <i data-lucide="trash-2" class="w-3 h-3"></i>
+          </button>
+        </div>
+      `
+    }
+  ]));
+  if (window.lucide) lucide.createIcons();
+};
+
+window.deleteUser = async (id) => {
+  if (!confirm(`¿Seguro que deseas eliminar al usuario #${id}? Esta acción no se puede deshacer.`)) return;
+  try {
+    const r = await fetch(API + "/api/users/" + id, { method: "DELETE", headers: { Authorization: "Bearer " + session.token } });
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      toast("Usuario eliminado", "success");
+      $("btnListUsers").click();
+    } else {
+      toast(j.message || "Error eliminando usuario", "error");
+    }
+  } catch (e) { toast("Error de red", "error"); }
+};
+
+window.changeUserRole = async (id, currentRole) => {
+  const newRole = prompt("Nuevo rol (ADMIN, LEADER, DESIGNER):", currentRole);
+  if (!newRole || newRole === currentRole) return;
+  if (!["ADMIN", "LEADER", "DESIGNER"].includes(newRole.toUpperCase())) return toast("Rol inválido", "error");
+
+  try {
+    const r = await fetch(API + "/api/users/" + id + "/role", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
+      body: JSON.stringify({ role: newRole.toUpperCase() })
+    });
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      toast("Rol actualizado", "success");
+      $("btnListUsers").click();
+    } else {
+      toast(j.message || "Error actualizando rol", "error");
+    }
+  } catch (e) { toast("Error de red", "error"); }
 };
 
 $("btnLoadValidations").onclick = async () => {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { auth } from "../middlewares/auth.js";
-import { listUsersService, setRoleService, assignToTeamService } from "../services/users.service.js";
+import { listUsersService, setRoleService, assignToTeamService, deleteUserService } from "../services/users.service.js";
 
 const router = Router();
 
