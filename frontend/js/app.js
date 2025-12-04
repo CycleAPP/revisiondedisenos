@@ -1261,7 +1261,7 @@ $("btnFilesListLatest").onclick = async () => {
 };
 
 /* -------------------------- Asistente global (thread por usuario) -------------------------- */
-function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#FFFFFF"; }
+function cssVar(name) { return getComputedStyle(document.body).getPropertyValue(name).trim() || "#FFFFFF"; }
 
 let globalThread = localStorage.getItem(threadKey()) || null;
 
