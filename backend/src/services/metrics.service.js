@@ -6,8 +6,15 @@ export const getErrorMetricsService = async () => {
         where: { status: "REJECTED" }
     });
 
+    // Fix: Only count validations for existing assignments
+    const activeAssignments = await prisma.assignment.findMany({ select: { modelKey: true } });
+    const activeModelKeys = activeAssignments.map(a => a.modelKey).filter(Boolean);
+
     const failedValidations = await prisma.validation.findMany({
-        where: { status: "NOT_OK" }
+        where: {
+            status: "NOT_OK",
+            modelKey: { in: activeModelKeys }
+        }
     });
 
     const errorCounters = {};
