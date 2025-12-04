@@ -1,19 +1,11 @@
-
 import { ok, fail } from "../utils/response.js";
-import { listUsers as listUsersService, setRoleService, assignToTeamService, getUserMetricsService, updateTimezoneService } from "../services/users.service.js";
+import { listUsers as listUsersService, setRoleService, assignToTeamService, getUserMetricsService } from "../services/users.service.js";
 
 export const getMetrics = async (req, res) => {
   try {
     const userId = req.params.id || req.user.id;
     const metrics = await getUserMetricsService(userId);
     return ok(res, metrics);
-  } catch (e) { return fail(res, e.message); }
-};
-
-export const updateTimezone = async (req, res) => {
-  try {
-    await updateTimezoneService(req.user.id, req.body.timezone);
-    return ok(res, { message: "Timezone updated" });
   } catch (e) { return fail(res, e.message); }
 };
 

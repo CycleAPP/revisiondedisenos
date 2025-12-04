@@ -7,15 +7,8 @@ export const listUsersService = async () => {
       name: true,
       email: true,
       role: true,
-      teamId: true,
-      timezone: true
+      teamId: true
     }
   });
 };
 
-export const updateTimezoneService = async (id, timezone) => {
-  return prisma.user.update({
-    where: { id },
-    data: { timezone }
-  });
-};

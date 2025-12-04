@@ -1,29 +1,38 @@
 import { Router } from "express";
 import { auth } from "../middlewares/auth.js";
-import { listUsersService, updateTimezoneService } from "../services/users.service.js";
+import { listUsersService, setRoleService, assignToTeamService } from "../services/users.service.js";
 
 const router = Router();
 
 router.get("/", auth, async (_req, res) => {
   try {
     const users = await listUsersService();
-    res.json({ ok: true, data: users });
-  } catch (e) {
-    res.status(500).json({ ok: false, message: e.message });
+    return res.json({ ok: true, data: users });
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
   }
 });
 
-router.put("/:id/timezone", auth, async (req, res) => {
+router.post("/:id/role", auth, async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const { timezone } = req.body;
-    await updateTimezoneService(id, timezone);
-    return res.json({ ok: true, message: "Timezone updated" });
-  } catch (e) {
-    return res.status(404).json({ ok: false, message: "User not found or error updating" });
+    const { id } = req.params;
+    const { role } = req.body;
+    await setRoleService(Number(id), role);
+    return res.json({ ok: true, message: "Role updated" });
+  } catch (err) {
+    return res.status(400).json({ ok: false, message: err.message });
   }
 });
 
-router.use((_req, res) => res.status(404).json({ ok: false, message: "No encontrado /users" }));
+router.post("/:id/team", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { teamId } = req.body;
+    await assignToTeamService(Number(id), teamId ? Number(teamId) : null);
+    return res.json({ ok: true, message: "Team assigned" });
+  } catch (err) {
+    return res.status(400).json({ ok: false, message: err.message });
+  }
+});
 
 export default router;
