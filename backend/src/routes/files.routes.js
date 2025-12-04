@@ -57,72 +57,71 @@ router.post(
   async (req, res) => {
     try {
       if (!req.file) {
-        if (!req.file) {
-          return res.status(400).json({ ok: false, message: "Falta archivo" });
-        }
-
-        const { modelKey } = req.body;
-
-        let workbook;
-        try {
-          workbook = readWorkbook(req.file.path);
-        } catch (e) {
-          throw new Error("No se pudo leer el archivo Excel. Asegúrate de que sea un formato válido (.xlsx, .xls).");
-        }
-
-        if (!workbook.SheetNames || !workbook.SheetNames.length) {
-          throw new Error("El archivo Excel no tiene hojas visibles.");
-        }
-
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        if (!sheet) throw new Error(`La hoja '${sheetName}' está vacía o corrupta.`);
-
-        const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-        if (!rows || !rows.length) throw new Error("La hoja de Excel no contiene filas de datos.");
-
-        lastExcelMeta = {
-          storedFilename: req.file.filename,
-          originalName: req.file.originalname,
-          sheetName,
-          uploadedAt: new Date().toISOString()
-        };
-        lastExcelRows = rows;
-
-        // 🔥 NUEVO: guardar tabla en JSON para otras rutas (expected)
-        const jsonPath = path.join(uploadsDir, "master_design_table.json");
-        fs.writeFileSync(
-          jsonPath,
-          JSON.stringify({ meta: lastExcelMeta, rows }, null, 2),
-          "utf8"
-        );
-
-        let matchedRow = null;
-        if (modelKey) {
-          const key = String(modelKey).trim().toLowerCase();
-          matchedRow = rows.find(r =>
-            Object.values(r).some(v => String(v).trim().toLowerCase() === key)
-          ) || null;
-        }
-
-        return res.json({
-          ok: true,
-          message: "Excel cargado y parseado",
-          meta: lastExcelMeta,
-          rows: rows.length,
-          modelKey,
-          hasMatch: !!matchedRow,
-          sampleRow: matchedRow || rows[0] || null
-        });
-      } catch (err) {
-        console.error("Error en /api/files/upload-excel:", err);
-        return res.status(500).json({
-          ok: false,
-          message: "Error procesando Excel",
-          error: String(err?.message || err)
-        });
+        return res.status(400).json({ ok: false, message: "Falta archivo" });
       }
+
+      const { modelKey } = req.body;
+
+      let workbook;
+      try {
+        workbook = readWorkbook(req.file.path);
+      } catch (err) {
+        throw new Error("No se pudo leer el archivo Excel. Asegúrate de que sea un formato válido (.xlsx, .xls).");
+      }
+
+      if (!workbook.SheetNames || !workbook.SheetNames.length) {
+        throw new Error("El archivo Excel no tiene hojas visibles.");
+      }
+
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      if (!sheet) throw new Error(`La hoja '${sheetName}' está vacía o corrupta.`);
+
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      if (!rows || !rows.length) throw new Error("La hoja de Excel no contiene filas de datos.");
+
+      lastExcelMeta = {
+        storedFilename: req.file.filename,
+        originalName: req.file.originalname,
+        sheetName,
+        uploadedAt: new Date().toISOString()
+      };
+      lastExcelRows = rows;
+
+      // 🔥 NUEVO: guardar tabla en JSON para otras rutas (expected)
+      const jsonPath = path.join(uploadsDir, "master_design_table.json");
+      fs.writeFileSync(
+        jsonPath,
+        JSON.stringify({ meta: lastExcelMeta, rows }, null, 2),
+        "utf8"
+      );
+
+      let matchedRow = null;
+      if (modelKey) {
+        const key = String(modelKey).trim().toLowerCase();
+        matchedRow = rows.find(r =>
+          Object.values(r).some(v => String(v).trim().toLowerCase() === key)
+        ) || null;
+      }
+
+      return res.json({
+        ok: true,
+        message: "Excel cargado y parseado",
+        meta: lastExcelMeta,
+        rows: rows.length,
+        modelKey,
+        hasMatch: !!matchedRow,
+        sampleRow: matchedRow || rows[0] || null
+      });
+    } catch (err) {
+      console.error("Error en /api/files/upload-excel:", err);
+      return res.status(500).json({
+        ok: false,
+        message: "Error procesando Excel",
+        error: String(err?.message || err)
+      });
     }
+  }
 );
 
 /**
