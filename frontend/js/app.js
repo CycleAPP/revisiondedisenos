@@ -1515,11 +1515,11 @@ function renderSkeletonButton(projectType, returnRaw = false) {
   if (!t) return "";
 
   if (returnRaw) {
-    return `<a href="${API}/api/templates/download/${t.id}" target="_blank"></a>`;
+    return `<a href="${API}/api/templates/download/${t.id}?token=${session.token}" target="_blank"></a>`;
   }
 
   return `
-    <a href="${API}/api/templates/download/${t.id}" target="_blank" class="btn btn-xs btn-outline btn-info" title="Descargar Esqueleto: ${escapeHTML(t.name)}">
+    <a href="${API}/api/templates/download/${t.id}?token=${session.token}" target="_blank" class="btn btn-xs btn-outline btn-info" title="Descargar Esqueleto: ${escapeHTML(t.name)}">
       <i data-lucide="download" class="w-3 h-3"></i> AI
     </a>
   `;

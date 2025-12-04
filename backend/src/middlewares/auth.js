@@ -3,7 +3,7 @@ import { env } from "../config/env.js";
 import prisma from "../config/prisma.js";
 
 export const auth = async (req, res, next) => {
-  const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
+  const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim() || req.query.token;
   if (!token) return res.status(401).json({ ok: false, message: "No token" });
 
   // Soporte para token de demo plano (sin JWT)
