@@ -155,3 +155,18 @@ model ChatMessage {
   content   String
   createdAt DateTime   @default(now())
 }
+
+/* ============================
+   TEMPLATES (ESQUELETOS)
+   ============================ */
+
+model Template {
+  id           Int      @id @default(autoincrement())
+  name         String   // Nombre descriptivo (ej. "Full Color Box")
+  type         String   // Tipo de empaque (para matching automático)
+  filename     String   // Nombre del archivo físico
+  path         String   // Ruta relativa o URL
+  uploadedById Int
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+}
