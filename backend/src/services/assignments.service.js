@@ -1,8 +1,8 @@
 import prisma from "../config/prisma.js";
 
-export const createAssignmentService = async ({ modelKey, title, description, createdById, projectType, deadline }) => {
+export const createAssignmentService = async ({ modelKey, title, description, createdById }) => {
   return prisma.assignment.create({
-    data: { modelKey, title, description, createdById, projectType, deadline }
+    data: { modelKey, title, description, createdById }
   });
 };
 
@@ -52,17 +52,19 @@ export const listRejectedService = async () => {
 };
 
 export const deleteAssignmentService = async (id) => {
-  // Delete related reviews/validations/files first if cascade not set?
-  // Prisma schema usually handles cascade if configured, but let's check schema.
-  // Schema doesn't show onDelete: Cascade. So we might need to delete related first.
-  // Or just try delete and see.
-  // Let's delete related manually to be safe.
-  await prisma.validationLog.deleteMany({ where: { assignmentId: id } });
-  await prisma.review.deleteMany({ where: { assignmentId: id } });
-  // Files might be tricky if we want to keep them or not.
-  // Let's keep files for now or delete reference?
-  // FileAsset has assignmentId.
-  await prisma.fileAsset.updateMany({ where: { assignmentId: id }, data: { assignmentId: null } });
+  // Delete related validations
+  const assignment = await prisma.assignment.findUnique({ where: { id } });
+  if (assignment && assignment.modelKey) {
+    await prisma.validation.deleteMany({ where: { modelKey: assignment.modelKey } });
+  }
+
+  // FileRecord has uploadedBy (User), not assignmentId directly in schema? 
+  // Wait, schema for FileRecord:
+  // model FileRecord { ... uploadedBy Int ... }
+  // It does NOT have assignmentId in the schema I saw!
+  // So we can't delete by assignmentId.
+  // We can delete by modelKey if we want, but maybe unsafe.
+  // Let's just delete the assignment.
 
   return prisma.assignment.delete({ where: { id } });
 };
@@ -71,80 +73,35 @@ export const submitAssignmentService = async ({ id, userId, overall }) => {
   const assignment = await prisma.assignment.findUnique({ where: { id } });
   if (!assignment) throw new Error("Tarea no encontrada");
 
-  // Update assignment status
+  // Update assignment status to DONE (meaning "Submitted for Review")
   const updated = await prisma.assignment.update({
     where: { id },
-    data: { status: "REVIEW" }
+    data: { status: "DONE" }
   });
 
-  // Create or Update Review
-  // Check if pending review exists
-  const existing = await prisma.review.findFirst({
-    where: { assignmentId: id, leaderStatus: "PENDING" } // or just find any review for this assignment?
-  });
-
-  if (existing) {
-    await prisma.review.update({
-      where: { id: existing.id },
-      data: {
-        status: "SUBMITTED",
-        iaStatus: overall || "PENDING",
-        leaderStatus: "PENDING",
-        submittedById: userId,
-        details: JSON.stringify({ notes: "Re-enviado", status: "REVIEW" }) // simple string for now
-      }
-    });
-  } else {
-    await prisma.review.create({
-      data: {
-        assignmentId: id,
-        modelKey: assignment.modelKey,
-        status: "SUBMITTED",
-        iaStatus: overall || "PENDING",
-        leaderStatus: "PENDING",
-        submittedById: userId,
-        createdById: assignment.createdById,
-        details: JSON.stringify({ notes: "Enviado a revisión", status: "REVIEW" })
-      }
-    });
+  // Update Validation if exists, or create
+  // We use Validation to store the "AI Status" (overall)
+  if (assignment.modelKey) {
+    const existing = await prisma.validation.findFirst({ where: { modelKey: assignment.modelKey } });
+    if (existing) {
+      await prisma.validation.update({
+        where: { id: existing.id },
+        data: { status: overall || "PENDING", details: JSON.stringify({ notes: "Re-enviado" }) }
+      });
+    } else {
+      await prisma.validation.create({
+        data: {
+          modelKey: assignment.modelKey,
+          status: overall || "PENDING",
+          details: JSON.stringify({ notes: "Enviado a revisión" })
+        }
+      });
+    }
   }
+
   return updated;
 };
 
 export const requestApprovalService = async ({ id, userId, overall }) => {
-  const assignment = await prisma.assignment.findUnique({ where: { id } });
-  if (!assignment) throw new Error("Tarea no encontrada");
-
-  const updated = await prisma.assignment.update({
-    where: { id },
-    data: { status: "REVIEW_REQUESTED" }
-  });
-
-  const existing = await prisma.review.findFirst({ where: { assignmentId: id } });
-
-  if (existing) {
-    await prisma.review.update({
-      where: { id: existing.id },
-      data: {
-        leaderStatus: "PENDING",
-        iaStatus: overall || existing.iaStatus,
-        submittedById: userId,
-        details: JSON.stringify({ notes: "Solicitado por diseñador" })
-      }
-    });
-  } else {
-    await prisma.review.create({
-      data: {
-        assignmentId: id,
-        modelKey: assignment.modelKey,
-        status: "SUBMITTED",
-        iaStatus: overall || "PENDING",
-        leaderStatus: "PENDING",
-        submittedById: userId,
-        createdById: assignment.createdById,
-        details: JSON.stringify({ notes: "Solicitado por diseñador" })
-      }
-    });
-  }
-  return updated;
+  return submitAssignmentService({ id, userId, overall });
 };

@@ -1,61 +1,52 @@
 import prisma from "../config/prisma.js";
 
 export const listReviewsService = async ({ userId, role }) => {
-    let where = {};
+    let where = {
+        status: "DONE" // We assume DONE means "Submitted for Review"
+    };
 
     if (role === "LEADER") {
-        // Leader sees reviews for tasks they created? Or all?
-        // Previous code: if LEADER, filter by assignment.createdById === userId
-        // Let's try to match that.
-        where = {
-            assignment: {
-                createdById: userId
-            }
-        };
+        where.createdById = userId;
     } else if (role === "DESIGNER") {
-        where = {
-            submittedById: userId
-        };
+        where.assigneeId = userId;
     }
-    // Admin sees all (empty where)
 
-    const reviews = await prisma.review.findMany({
+    const assignments = await prisma.assignment.findMany({
         where,
         include: {
-            assignment: true,
-            submittedBy: true
+            assignee: true,
+            createdBy: true
         },
         orderBy: { updatedAt: "desc" }
     });
 
-    // Enrich with latest file
-    // We need to fetch files for these reviews.
-    // We can do it in parallel or N+1 (bad but simple for now).
-    // Better: fetch all relevant files.
-
-    const enriched = await Promise.all(reviews.map(async (r) => {
-        // Find latest file for this assignment or modelKey
-        // FileAsset has assignmentId, prefer that.
-        let file = await prisma.fileAsset.findFirst({
-            where: { assignmentId: r.assignmentId, type: "DESIGN" },
+    // Enrich with Validation details and latest file
+    const enriched = await Promise.all(assignments.map(async (a) => {
+        // Find latest file for this modelKey
+        let file = await prisma.fileRecord.findFirst({
+            where: { modelKey: { equals: a.modelKey, mode: 'insensitive' }, type: "DESIGN" },
             orderBy: { createdAt: "desc" }
         });
 
-        if (!file && r.modelKey) {
-            // Fallback by modelKey
-            file = await prisma.fileAsset.findFirst({
-                where: { modelKey: r.modelKey, type: "DESIGN" },
-                orderBy: { createdAt: "desc" }
-            });
-        }
+        // Find validation
+        let validation = await prisma.validation.findFirst({
+            where: { modelKey: a.modelKey }
+        });
 
         return {
-            ...r,
-            designerName: r.submittedBy?.name || "Desconocido",
-            designerEmail: r.submittedBy?.email || "",
-            fileUrl: file ? file.url : r.fileUrl, // Use file asset url or fallback to review's fileUrl if set
-            fileName: file ? file.filename : r.fileName,
-            details: r.details ? JSON.parse(r.details) : {}
+            id: a.id, // Use assignment ID as review ID
+            assignmentId: a.id,
+            modelKey: a.modelKey,
+            status: "SUBMITTED", // Frontend expects this
+            leaderStatus: "PENDING", // Frontend expects this
+            iaStatus: validation ? validation.status : "PENDING",
+            designerName: a.assignee?.name || "Desconocido",
+            designerEmail: a.assignee?.email || "",
+            fileUrl: file ? file.path : null,
+            fileName: file ? file.original : null,
+            details: validation && validation.details ? JSON.parse(validation.details) : {},
+            createdAt: a.createdAt,
+            updatedAt: a.updatedAt
         };
     }));
 
@@ -64,32 +55,35 @@ export const listReviewsService = async ({ userId, role }) => {
 
 export const updateReviewStatusService = async ({ id, status, notes, leaderId }) => {
     // status is 'APPROVED' or 'REJECTED'
-    const review = await prisma.review.findUnique({ where: { id } });
-    if (!review) throw new Error("Review no encontrada");
+    // id is assignmentId now
+    const assignment = await prisma.assignment.findUnique({ where: { id } });
+    if (!assignment) throw new Error("Tarea no encontrada");
 
-    const updatedReview = await prisma.review.update({
+    const newStatus = status === "APPROVED" ? "APPROVED" : "REJECTED";
+
+    const updated = await prisma.assignment.update({
         where: { id },
         data: {
-            leaderStatus: status,
-            notes, // We can store notes in 'notes' field or inside 'details' JSON. Schema has 'notes' String?
-            // Schema has `notes String?`. Previous code used `leaderNotes` and `details`.
-            // Let's use `notes` field for leader notes.
+            status: newStatus,
             updatedAt: new Date()
         }
     });
 
-    // Update Assignment status
-    if (status === "APPROVED") {
-        await prisma.assignment.update({
-            where: { id: review.assignmentId },
-            data: { status: "DONE", completedAt: new Date() }
-        });
-    } else if (status === "REJECTED") {
-        await prisma.assignment.update({
-            where: { id: review.assignmentId },
-            data: { status: "IN_PROGRESS" } // Back to progress
-        });
+    // Update Validation details with notes if possible
+    if (assignment.modelKey) {
+        const validation = await prisma.validation.findFirst({ where: { modelKey: assignment.modelKey } });
+        if (validation) {
+            // Append notes to details
+            let details = {};
+            try { details = JSON.parse(validation.details); } catch (e) { }
+            details.leaderNotes = notes;
+
+            await prisma.validation.update({
+                where: { id: validation.id },
+                data: { details: JSON.stringify(details) }
+            });
+        }
     }
 
-    return updatedReview;
+    return updated;
 };

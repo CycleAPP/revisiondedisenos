@@ -1,25 +1,27 @@
 import prisma from "../config/prisma.js";
 
 export const getErrorMetricsService = async () => {
-    // Calculate error metrics from Reviews
-    // This is complex to aggregate in SQL if details is JSON.
-    // We'll fetch reviews and aggregate in JS for now, similar to original code.
-    const reviews = await prisma.review.findMany({
-        where: { OR: [{ status: { not: "OK" } }, { leaderStatus: "REJECTED" }] }
+    // Calculate error metrics from Assignments (REJECTED) and Validations (NOT_OK)
+    const rejectedAssignments = await prisma.assignment.findMany({
+        where: { status: "REJECTED" }
+    });
+
+    const failedValidations = await prisma.validation.findMany({
+        where: { status: "NOT_OK" }
     });
 
     const errorCounters = {};
 
-    reviews.forEach(r => {
-        // Leader Rejections
-        if (r.leaderStatus === "REJECTED") {
-            errorCounters["Rechazo por Líder"] = (errorCounters["Rechazo por Líder"] || 0) + 1;
-        }
+    // Leader Rejections
+    if (rejectedAssignments.length > 0) {
+        errorCounters["Rechazo por Líder"] = rejectedAssignments.length;
+    }
 
-        // AI Errors (if stored in details)
-        if (r.details) {
+    // AI Errors
+    failedValidations.forEach(v => {
+        if (v.details) {
             try {
-                const details = JSON.parse(r.details);
+                const details = JSON.parse(v.details);
                 if (details.missing && Array.isArray(details.missing)) {
                     details.missing.forEach(missingField => {
                         errorCounters[missingField] = (errorCounters[missingField] || 0) + 1;
@@ -34,9 +36,12 @@ export const getErrorMetricsService = async () => {
 
 export const getEfficiencyMetricsService = async () => {
     // Efficiency by user
-    // Fetch assignments completed
+    // Fetch assignments completed (APPROVED or DONE)
+    // Actually, if we use DONE for "Submitted", we should check APPROVED for "Fully Completed"
+    // But let's check both for now or just APPROVED if that's the final state.
+    // In review.service.js we set status to APPROVED.
     const assignments = await prisma.assignment.findMany({
-        where: { status: "DONE", completedAt: { not: null } },
+        where: { status: "APPROVED" }, // Only count approved tasks
         include: { assignee: true }
     });
 
@@ -50,8 +55,12 @@ export const getEfficiencyMetricsService = async () => {
             efficiency[userId] = { repairedTimeMsAcum: 0, tasksDone: 0, lastCalcAt: Date.now() };
         }
 
+        // We need start time. CreatedAt is start.
+        // CompletedAt is not in schema?
+        // Wait, schema has updatedAt.
+        // If we don't have completedAt, we use updatedAt.
         const start = new Date(a.createdAt);
-        const end = new Date(a.completedAt);
+        const end = new Date(a.updatedAt);
         const duration = end - start;
 
         efficiency[userId].repairedTimeMsAcum += duration;
@@ -62,15 +71,15 @@ export const getEfficiencyMetricsService = async () => {
 };
 
 export const getHardestDesignsService = async () => {
-    // Count fails per modelKey
-    const reviews = await prisma.review.findMany({
-        where: { OR: [{ status: { not: "OK" } }, { leaderStatus: "REJECTED" }] }
+    // Count fails per modelKey (REJECTED assignments)
+    const rejected = await prisma.assignment.findMany({
+        where: { status: "REJECTED" }
     });
 
     const counts = {};
-    reviews.forEach(r => {
-        if (r.modelKey) {
-            counts[r.modelKey] = (counts[r.modelKey] || 0) + 1;
+    rejected.forEach(a => {
+        if (a.modelKey) {
+            counts[a.modelKey] = (counts[a.modelKey] || 0) + 1;
         }
     });
 
@@ -97,15 +106,15 @@ export const getDesignerMetricsService = async (userId) => {
     let completedCount = 0;
 
     for (const a of assignments) {
-        if (a.status === 'DONE') metrics.completed++;
-        else if (['IN_PROGRESS', 'REVIEW', 'REVIEW_REQUESTED', 'NEW', 'REJECTED'].includes(a.status)) metrics.pending++;
+        if (a.status === 'APPROVED') metrics.completed++;
+        else if (['IN_PROGRESS', 'PENDING', 'DONE', 'REJECTED'].includes(a.status)) metrics.pending++;
 
         const type = a.projectType || 'Unknown';
         metrics.byProject[type] = (metrics.byProject[type] || 0) + 1;
 
-        if (a.completedAt && a.createdAt) {
+        if (a.status === 'APPROVED') {
             const start = new Date(a.createdAt);
-            const end = new Date(a.completedAt);
+            const end = new Date(a.updatedAt);
             totalTimeMs += (end - start);
             completedCount++;
         }
@@ -115,32 +124,36 @@ export const getDesignerMetricsService = async (userId) => {
         metrics.avgTimeHours = (totalTimeMs / completedCount) / (1000 * 60 * 60);
     }
 
-    // Errors
-    const reviews = await prisma.review.findMany({
-        where: {
-            assignment: { assigneeId: userId },
-            OR: [{ status: { not: "OK" } }, { leaderStatus: "REJECTED" }]
-        }
-    });
+    // Errors (Rejected assignments)
+    const rejected = assignments.filter(a => a.status === 'REJECTED');
+    if (rejected.length > 0) {
+        metrics.errors['Rechazo por Líder'] = rejected.length;
+    }
 
-    reviews.forEach(r => {
-        if (r.leaderStatus === 'REJECTED') {
-            metrics.errors['Rechazo por Líder'] = (metrics.errors['Rechazo por Líder'] || 0) + 1;
-        }
-        if (r.details) {
-            try {
-                const details = JSON.parse(r.details);
-                if (details.missing && Array.isArray(details.missing)) {
-                    details.missing.forEach(missingField => {
-                        metrics.errors[missingField] = (metrics.errors[missingField] || 0) + 1;
-                    });
-                }
-                if (r.leaderNotes) {
-                    metrics.errors[r.leaderNotes] = (metrics.errors[r.leaderNotes] || 0) + 1;
-                }
-            } catch (e) { /* ignore */ }
-        }
-    });
+    // AI Errors for these assignments (via Validation)
+    // We need to fetch validations for these assignments' modelKeys
+    const modelKeys = assignments.map(a => a.modelKey).filter(Boolean);
+    if (modelKeys.length > 0) {
+        const validations = await prisma.validation.findMany({
+            where: {
+                modelKey: { in: modelKeys },
+                status: "NOT_OK"
+            }
+        });
+
+        validations.forEach(v => {
+            if (v.details) {
+                try {
+                    const details = JSON.parse(v.details);
+                    if (details.missing && Array.isArray(details.missing)) {
+                        details.missing.forEach(missingField => {
+                            metrics.errors[missingField] = (metrics.errors[missingField] || 0) + 1;
+                        });
+                    }
+                } catch (e) { /* ignore */ }
+            }
+        });
+    }
 
     return metrics;
 };
