@@ -386,10 +386,11 @@ $("btnMyAssignments").onclick = async () => {
           <div class="flex gap-2">
             <button class="btn btn-ghost btn-xs open-studio" 
               data-id="${a.id}" 
-              data-model="${a.modelKey}">
+              data-model="${a.modelKey}"
+              data-packaging="${a.projectType || a.packagingType || ''}">
               <i data-lucide="app-window" class="w-4 h-4"></i> Studio
             </button>
-            ${renderSkeletonButton(a.projectType)}
+            ${renderSkeletonButton(a.projectType || a.packagingType)}
           </div>
         `
       }
@@ -408,7 +409,8 @@ $("btnMyAssignments").onclick = async () => {
       if (btn) {
         openStudio({
           assignmentId: Number(btn.dataset.id),
-          modelKey: btn.dataset.model
+          modelKey: btn.dataset.model,
+          packagingType: btn.dataset.packaging
         });
       }
     };
@@ -556,9 +558,9 @@ $("btnSubmit").onclick = async () => {
 };
 
 /* -------- STUDIO (detalle) -------- */
-function openStudio({ assignmentId, modelKey }) {
-  console.log("Opening studio for:", assignmentId, modelKey);
-  currentStudio = { assignmentId, modelKey, expected: null, validation: null };
+function openStudio({ assignmentId, modelKey, packagingType }) {
+  console.log("Opening studio for:", assignmentId, modelKey, packagingType);
+  currentStudio = { assignmentId, modelKey, packagingType, expected: null, validation: null };
   // $("studioBadge") does not exist in HTML, removing.
   $("studioModelKey").textContent = modelKey;
   $("studioUploadResp").textContent = "";
@@ -567,6 +569,24 @@ function openStudio({ assignmentId, modelKey }) {
   $("btnStudioSend").disabled = true;
   $("btnStudioRequest").disabled = true;
   $("studioIABox").innerHTML = '<span class="opacity-80">Pulsa <b>IA: contexto</b> para preparar el resumen de esta tarea.</span>';
+
+  // Inject Skeleton Button in Header
+  const headerActions = $("btnStudioLoadTexts").parentNode;
+  // Remove existing skeleton button if any
+  const existingBtn = headerActions.querySelector(".studio-skeleton-btn");
+  if (existingBtn) existingBtn.remove();
+
+  const skelBtnHtml = renderSkeletonButton(packagingType, true);
+  if (skelBtnHtml) {
+    const temp = document.createElement("div");
+    temp.innerHTML = skelBtnHtml;
+    const btn = temp.firstElementChild;
+    btn.classList.add("studio-skeleton-btn", "btn", "btn-outline", "btn-info", "btn-sm");
+    btn.classList.remove("btn-xs"); // Make it bigger for header
+    btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> Descargar Esqueleto';
+    headerActions.insertBefore(btn, headerActions.firstChild);
+  }
+
   selectTab("tab-studio");
   $("btnStudioLoadTexts").click(); // precargar textos
 }
@@ -1477,16 +1497,29 @@ if ($("btnUploadSkeleton")) {
   };
 }
 
-function renderSkeletonButton(projectType) {
-  const normalize = (t) => (t || "").trim().toLowerCase();
+function renderSkeletonButton(projectType, returnRaw = false) {
+  const normalize = (t) => (t || "").trim().toLowerCase().replace(/caja\s*/g, "").trim();
   const requested = normalize(projectType);
   if (!requested) return "";
 
-  const t = globalTemplates.find(x => normalize(x.type) === requested) ||
-    globalTemplates.find(x => normalize(x.type).includes(requested) || requested.includes(normalize(x.type)));
+  // Fuzzy match: check if requested is part of template name OR template name is part of requested
+  // Also check raw type without normalization just in case
+  const t = globalTemplates.find(x => {
+    const nType = normalize(x.type);
+    const nName = normalize(x.name);
+    return nType === requested || nName === requested ||
+      nType.includes(requested) || requested.includes(nType) ||
+      nName.includes(requested) || requested.includes(nName);
+  });
+
   if (!t) return "";
+
+  if (returnRaw) {
+    return `<a href="${API}/api/templates/download/${t.id}" target="_blank"></a>`;
+  }
+
   return `
-    <a href="${API}/api/templates/download/${t.id}" target="_blank" class="btn btn-xs btn-outline btn-info" title="Descargar Esqueleto">
+    <a href="${API}/api/templates/download/${t.id}" target="_blank" class="btn btn-xs btn-outline btn-info" title="Descargar Esqueleto: ${escapeHTML(t.name)}">
       <i data-lucide="download" class="w-3 h-3"></i> AI
     </a>
   `;
