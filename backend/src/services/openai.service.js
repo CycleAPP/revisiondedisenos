@@ -32,9 +32,21 @@ try {
   console.error("[openai] Failed to load validation rules:", e);
 }
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiInstance = null;
+
+function getOpenAIClient() {
+  if (openaiInstance) return openaiInstance;
+
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OpenAI API Key not configured.");
+  }
+
+  openaiInstance = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  return openaiInstance;
+}
 
 /**
  * Parses raw text using OpenAI to extract structured data and a GLOBAL (no faces) validation.
@@ -43,9 +55,7 @@ const openai = new OpenAI({
  * @returns {Promise<Object>} - The parsed JSON object.
  */
 export async function parseTextWithOpenAI(text, hints = "") {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OpenAI API Key not configured.");
-  }
+  const openai = getOpenAIClient();
 
   const prompt = `
 **ROL:** Verificador experto de artes de empaque. No asumas caras; el OCR es global.
@@ -156,9 +166,7 @@ ${text}
  * @returns {Promise<Object>} - The parsed JSON response.
  */
 export async function analyzeImageWithOpenAI(filePath, promptText) {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OpenAI API Key not configured.");
-  }
+  const openai = getOpenAIClient();
 
   try {
     const ext = path.extname(filePath).toLowerCase();
