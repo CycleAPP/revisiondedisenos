@@ -1497,32 +1497,40 @@ setInterval(() => loadSkeletons({ force: true }), 10000); // Refresh periodicall
 setTimeout(() => loadSkeletons({ force: true }), 1000); // Initial load
 
 /* -------------------------- Guía de Usuario (Drawer) -------------------------- */
+/* -------------------------- Guía de Usuario (Drawer) -------------------------- */
 window.showUserGuide = () => {
-  `,
-    LEADER: `
-      ${ hero("Guía rápida: Líder", "Crea tareas, sube esqueletos y aprueba", "bg-amber-500") }
-  <div class="space-y-2">
-    ${step(1, "Crear + Delegar", "En “Panel de Líder” crea tareas y asígnalas al diseñador correcto.")}
-    ${step(2, "Subir esqueletos", "En “Esqueletos (.ai)” sube plantillas por tipo de empaque (ej. Full Color Box). El nombre debe coincidir con el campo “Tipo de empaque / esqueleto” de la tarea.")}
-    ${step(3, "Validar envíos", "Revisa “Validaciones Pendientes” y aprueba o rechaza con notas claras.")}
-    ${step(4, "Métricas", "Monitorea rendimiento y errores frecuentes para priorizar coaching.")}
-  </div>
-  `,
-    ADMIN: `
-      ${ hero("Guía rápida: Admin", "Gobierna usuarios y accesos", "bg-emerald-600") }
-  <div class="space-y-2">
-    ${step(1, "Usuarios", "Crea, lista y gestiona roles desde la pestaña Admin.")}
-    ${step(2, "Auditoría", "Accede a Archivos y Diseños aprobados para control de calidad.")}
-    ${step(3, "Soporte", "Ayuda a líderes/diseñadores a restablecer sesiones o permisos.")}
-  </div>
-  `,
-    UNKNOWN: `
-      ${ hero("Guía rápida", "Inicia sesión para ver tu flujo", "bg-gray-500") }
-  <p class="text-sm text-gray-600">Accede con tus credenciales para ver la guía personalizada de tu rol.</p>
-  `
-  };
+  const role = session.user?.role || "GUEST";
+  let content = "";
 
-  $("guideContent").innerHTML = cards[role] || cards.UNKNOWN;
-  document.getElementById("guideModal").showModal();
+  if (role === "DESIGNER") {
+    content = `
+      <h4 class="font-medium text-gray-900">1. Revisa tus tareas</h4>
+      <p>Ve a la pestaña <strong>Diseñador</strong>. Ahí verás tus asignaciones pendientes.</p>
+      <h4 class="font-medium text-gray-900 mt-4">2. Sube tu diseño</h4>
+      <p>Entra al <strong>Studio</strong> de una tarea, carga tu archivo (PDF/Imagen) y usa "Validar Contenido" para que la IA revise textos legales y códigos de barras.</p>
+      <h4 class="font-medium text-gray-900 mt-4">3. Envía a revisión</h4>
+      <p>Si la validación es correcta, el botón "Enviar" se habilitará. Tu líder recibirá la notificación.</p>
+    `;
+  } else if (role === "LEADER") {
+    content = `
+      <h4 class="font-medium text-gray-900">1. Crea tareas</h4>
+      <p>En la pestaña <strong>Líder</strong>, usa el formulario "Nueva Tarea" para registrar proyectos y asignar diseñadores.</p>
+      <h4 class="font-medium text-gray-900 mt-4">2. Revisa aprobaciones</h4>
+      <p>En "Validaciones Pendientes" verás los diseños enviados. Puedes aprobarlos o rechazarlos con notas.</p>
+      <h4 class="font-medium text-gray-900 mt-4">3. Monitorea métricas</h4>
+      <p>Usa la sección de métricas para ver el rendimiento de tu equipo y detectar cuellos de botella.</p>
+    `;
+  } else {
+    content = `<p>Inicia sesión para ver la guía personalizada para tu rol.</p>`;
+  }
+
+  $("guideContent").innerHTML = content;
+  $("guideBackdrop").classList.add("open");
+  $("guideDrawer").classList.add("open");
   if (window.lucide) lucide.createIcons();
+};
+
+window.closeUserGuide = () => {
+  $("guideBackdrop").classList.remove("open");
+  $("guideDrawer").classList.remove("open");
 };
