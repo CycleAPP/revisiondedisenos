@@ -109,7 +109,8 @@ export const getDesignerMetricsService = async (userId) => {
         if (a.status === 'APPROVED') metrics.completed++;
         else if (['IN_PROGRESS', 'PENDING', 'DONE', 'REJECTED'].includes(a.status)) metrics.pending++;
 
-        const type = a.projectType || 'Unknown';
+        // projectType was removed from schema, using modelKey prefix as proxy or 'General'
+        const type = a.modelKey ? a.modelKey.split('-')[0] : 'General';
         metrics.byProject[type] = (metrics.byProject[type] || 0) + 1;
 
         if (a.status === 'APPROVED') {
