@@ -5,102 +5,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* --- Palette: Glass Mode --- */
-  --bg-body: #0f172a;
-  /* Fallback */
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-input: rgba(255, 255, 255, 0.05);
-  --bg-hover: rgba(255, 255, 255, 0.1);
+  /* --- Palette: Light Mode (Default) --- */
+  --bg-body: #f9fafb;
+  /* Gray 50 */
+  --bg-card: #ffffff;
+  /* White */
+  --bg-input: #f3f4f6;
+  /* Gray 100 */
+  --bg-hover: #f3f4f6;
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-main: #111827;
+  /* Gray 900 */
+  --text-muted: #6b7280;
+  /* Gray 500 */
 
-  --primary: #38bdf8;
-  /* Sky 400 */
-  --primary-fg: #0f172a;
+  --primary: #18181b;
+  /* Zinc 950 (Almost Black) */
+  --primary-fg: #ffffff;
 
-  --border: rgba(255, 255, 255, 0.1);
-  --ring: rgba(56, 189, 248, 0.5);
+  --accent: #2563eb;
+  /* Blue 600 */
+  --accent-fg: #ffffff;
 
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  --border: #e5e7eb;
+  /* Gray 200 */
+  --ring: rgba(0, 0, 0, 0.05);
 
-  --radius: 1rem;
-  /* 16px */
-  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-  --glass-blur: blur(16px);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  --radius: 0.75rem;
+  /* 12px */
+
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
 }
 
-body {
-  background: radial-gradient(circle at 0% 0%, #1e1b4b 0%, #0f172a 50%, #000000 100%);
-  background-attachment: fixed;
-  color: var(--text-main);
-  font-family: 'Inter', sans-serif;
-  min-height: 100vh;
+body.theme-dark {
+  /* --- Palette: Dark Mode --- */
+  --bg-body: #09090b;
+  /* Zinc 950 */
+  --bg-card: #18181b;
+  /* Zinc 900 */
+  --bg-input: #27272a;
+  /* Zinc 800 */
+  --bg-hover: #27272a;
+
+  --text-main: #f4f4f5;
+  /* Zinc 100 */
+  --text-muted: #a1a1aa;
+  /* Zinc 400 */
+
+  --primary: #fafafa;
+  /* Zinc 50 */
+  --primary-fg: #18181b;
+
+  --border: #27272a;
+  /* Zinc 800 */
+  --ring: rgba(255, 255, 255, 0.1);
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 }
-
-/* Glass Components */
-.card,
-.sidebar {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  box-shadow: var(--shadow-lg);
-}
-
-.input,
-.select,
-.textarea {
-  background: var(--bg-input);
-  border: var(--glass-border);
-  color: var(--text-main);
-}
-
-.input:focus,
-.select:focus,
-.textarea:focus {
-  background: var(--bg-hover);
-  border-color: var(--primary);
-  outline: none;
-  box-shadow: 0 0 0 2px var(--ring);
-}
-
-/* Override Light Mode for now (force Dark Glass) */
-body.theme-light {
-  /* We can make a "Light Glass" if needed, but for now let's stick to the requested dark glass look or map it */
-  --bg-body: #f0f9ff;
-  --bg-card: rgba(255, 255, 255, 0.6);
-  --bg-input: rgba(255, 255, 255, 0.5);
-  --bg-hover: rgba(255, 255, 255, 0.8);
-  --text-main: #0f172a;
-  --text-muted: #475569;
-  --border: rgba(255, 255, 255, 0.4);
-
-  background: radial-gradient(circle at 0% 0%, #e0f2fe 0%, #f0f9ff 100%);
-}
-
-body.theme-light .card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-}
-
-/* Sidebar specific */
-.sidebar {
-  border-right: var(--glass-border);
-}
-
-/* Table adjustments for glass */
-th {
-  background: rgba(0, 0, 0, 0.2);
-  color: var(--text-muted);
-}
-
-tr:hover td {
-  background: var(--bg-hover);
-}
-
 
 /* --- Base --- */
 body {
