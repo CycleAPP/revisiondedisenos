@@ -700,3 +700,107 @@ body.theme-dark .upload-success-overlay {
   overflow-y: auto;
   padding: 1.5rem;
 }
+/* --- Glass Futuristic Modal --- */
+.glass-modal {
+  background: rgba(20, 20, 30, 0.6) !important; /* Dark translucent */
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  border-radius: 24px !important;
+  color: #fff !important;
+  font-family: 'Inter', sans-serif !important;
+  overflow: hidden !important;
+}
+
+.glass-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.glass-title {
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 1.8rem !important;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  margin-bottom: 0.5rem !important;
+}
+
+.glass-content {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 1rem !important;
+}
+
+.glass-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 32px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s ease !important;
+}
+
+.glass-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.6) !important;
+}
+
+/* --- Futuristic Check Animation --- */
+.f-modal-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-modal-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  position: absolute;
+  animation: pulse-border 2s infinite;
+}
+
+.f-modal-check {
+  width: 40px;
+  height: 20px;
+  border-bottom: 4px solid #fff;
+  border-left: 4px solid #fff;
+  transform: rotate(-45deg) translate(2px, -2px);
+  opacity: 0;
+  animation: check-draw 0.6s 0.3s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  box-shadow: -2px 2px 10px rgba(99, 102, 241, 0.5);
+}
+
+.f-modal-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+  animation: fade-in-glow 1s ease-out forwards;
+}
+
+@keyframes pulse-border {
+  0% { transform: scale(1); border-color: rgba(99, 102, 241, 0.3); }
+  50% { transform: scale(1.1); border-color: rgba(99, 102, 241, 0.1); }
+  100% { transform: scale(1); border-color: rgba(99, 102, 241, 0.3); }
+}
+
+@keyframes check-draw {
+  0% { width: 0; height: 0; opacity: 0; }
+  50% { width: 0; height: 20px; opacity: 1; }
+  100% { width: 40px; height: 20px; opacity: 1; }
+}
+
+@keyframes fade-in-glow {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}

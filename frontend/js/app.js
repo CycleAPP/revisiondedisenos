@@ -587,10 +587,24 @@ $("btnSubmit").onclick = async () => {
     if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
 
     Swal.fire({
-      title: '¡Enviado!',
-      text: 'Tu diseño ha sido enviado al administrador.',
-      icon: 'success',
-      confirmButtonText: 'Genial'
+      title: '',
+      html: `
+        <div class="f-modal-icon">
+          <div class="f-modal-glow"></div>
+          <div class="f-modal-circle"></div>
+          <div class="f-modal-check"></div>
+        </div>
+        <h2 class="glass-title">¡Enviado!</h2>
+        <p class="glass-content">Tu diseño ha sido enviado al administrador.</p>
+      `,
+      background: 'transparent',
+      showConfirmButton: true,
+      confirmButtonText: 'Genial',
+      customClass: {
+        popup: 'glass-modal',
+        confirmButton: 'glass-btn'
+      },
+      buttonsStyling: false
     });
     loadDashboard();
   } catch { toast("Error de red", "error"); }
@@ -739,10 +753,24 @@ $("btnStudioSend").onclick = async () => {
     if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
 
     Swal.fire({
-      title: '¡Enviado!',
-      text: 'Tu diseño ha sido enviado al líder para revisión.',
-      icon: 'success',
-      confirmButtonText: 'Entendido'
+      title: '',
+      html: `
+      <div class="f-modal-icon">
+        <div class="f-modal-glow"></div>
+        <div class="f-modal-circle"></div>
+        <div class="f-modal-check"></div>
+      </div>
+      <h2 class="glass-title">¡Enviado!</h2>
+      <p class="glass-content">Tu diseño ha sido enviado al líder para revisión.</p>
+    `,
+      background: 'transparent',
+      showConfirmButton: true,
+      confirmButtonText: 'Entendido',
+      customClass: {
+        popup: 'glass-modal',
+        confirmButton: 'glass-btn'
+      },
+      buttonsStyling: false
     });
   } catch { toast("Error de red", "error"); }
   finally { spinner($("btnStudioSend"), false); }
