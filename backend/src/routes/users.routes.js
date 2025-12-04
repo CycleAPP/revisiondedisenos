@@ -35,4 +35,14 @@ router.post("/:id/team", auth, async (req, res) => {
   }
 });
 
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await deleteUserService(Number(id));
+    return res.json({ ok: true, message: "User deleted" });
+  } catch (err) {
+    return res.status(400).json({ ok: false, message: err.message });
+  }
+});
+
 export default router;
