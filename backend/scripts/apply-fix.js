@@ -1,4 +1,5 @@
 
+import { env } from "../src/config/env.js"; // Load env vars first
 import prisma from "../src/config/prisma.js";
 import fs from "fs";
 import path from "path";
