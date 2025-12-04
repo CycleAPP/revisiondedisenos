@@ -77,6 +77,7 @@ export const submitAssignment = async (req, res) => {
     const result = await service.submitAssignmentService({
       id: Number(req.params.id),
       userId: req.user.id,
+      userRole: req.user.role,
       overall: req.body.overall
     });
     return ok(res, result);
@@ -88,6 +89,7 @@ export const requestApproval = async (req, res) => {
     const result = await service.requestApprovalService({
       id: Number(req.params.id),
       userId: req.user.id,
+      userRole: req.user.role,
       overall: req.body.overall
     });
     return ok(res, result);

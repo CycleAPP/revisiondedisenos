@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import * as XLSX from "xlsx";
+import prisma from "../config/prisma.js";
 import { auth } from "../middlewares/auth.js";
 import { createFileAssetService, listFilesByModelKeyService } from "../services/files.service.js";
 
@@ -56,71 +57,72 @@ router.post(
   async (req, res) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ ok: false, message: "Falta archivo" });
+        if (!req.file) {
+          return res.status(400).json({ ok: false, message: "Falta archivo" });
+        }
+
+        const { modelKey } = req.body;
+
+        let workbook;
+        try {
+          workbook = readWorkbook(req.file.path);
+        } catch (e) {
+          throw new Error("No se pudo leer el archivo Excel. Asegúrate de que sea un formato válido (.xlsx, .xls).");
+        }
+
+        if (!workbook.SheetNames || !workbook.SheetNames.length) {
+          throw new Error("El archivo Excel no tiene hojas visibles.");
+        }
+
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        if (!sheet) throw new Error(`La hoja '${sheetName}' está vacía o corrupta.`);
+
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        if (!rows || !rows.length) throw new Error("La hoja de Excel no contiene filas de datos.");
+
+        lastExcelMeta = {
+          storedFilename: req.file.filename,
+          originalName: req.file.originalname,
+          sheetName,
+          uploadedAt: new Date().toISOString()
+        };
+        lastExcelRows = rows;
+
+        // 🔥 NUEVO: guardar tabla en JSON para otras rutas (expected)
+        const jsonPath = path.join(uploadsDir, "master_design_table.json");
+        fs.writeFileSync(
+          jsonPath,
+          JSON.stringify({ meta: lastExcelMeta, rows }, null, 2),
+          "utf8"
+        );
+
+        let matchedRow = null;
+        if (modelKey) {
+          const key = String(modelKey).trim().toLowerCase();
+          matchedRow = rows.find(r =>
+            Object.values(r).some(v => String(v).trim().toLowerCase() === key)
+          ) || null;
+        }
+
+        return res.json({
+          ok: true,
+          message: "Excel cargado y parseado",
+          meta: lastExcelMeta,
+          rows: rows.length,
+          modelKey,
+          hasMatch: !!matchedRow,
+          sampleRow: matchedRow || rows[0] || null
+        });
+      } catch (err) {
+        console.error("Error en /api/files/upload-excel:", err);
+        return res.status(500).json({
+          ok: false,
+          message: "Error procesando Excel",
+          error: String(err?.message || err)
+        });
       }
-
-      const { modelKey } = req.body;
-
-      let workbook;
-      try {
-        workbook = readWorkbook(req.file.path);
-      } catch (e) {
-        throw new Error("No se pudo leer el archivo Excel. Asegúrate de que sea un formato válido (.xlsx, .xls).");
-      }
-
-      if (!workbook.SheetNames || !workbook.SheetNames.length) {
-        throw new Error("El archivo Excel no tiene hojas visibles.");
-      }
-
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      if (!sheet) throw new Error(`La hoja '${sheetName}' está vacía o corrupta.`);
-
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-      if (!rows || !rows.length) throw new Error("La hoja de Excel no contiene filas de datos.");
-
-      lastExcelMeta = {
-        storedFilename: req.file.filename,
-        originalName: req.file.originalname,
-        sheetName,
-        uploadedAt: new Date().toISOString()
-      };
-      lastExcelRows = rows;
-
-      // 🔥 NUEVO: guardar tabla en JSON para otras rutas (expected)
-      const jsonPath = path.join(uploadsDir, "master_design_table.json");
-      fs.writeFileSync(
-        jsonPath,
-        JSON.stringify({ meta: lastExcelMeta, rows }, null, 2),
-        "utf8"
-      );
-
-      let matchedRow = null;
-      if (modelKey) {
-        const key = String(modelKey).trim().toLowerCase();
-        matchedRow = rows.find(r =>
-          Object.values(r).some(v => String(v).trim().toLowerCase() === key)
-        ) || null;
-      }
-
-      return res.json({
-        ok: true,
-        message: "Excel cargado y parseado",
-        meta: lastExcelMeta,
-        rows: rows.length,
-        modelKey,
-        hasMatch: !!matchedRow,
-        sampleRow: matchedRow || rows[0] || null
-      });
-    } catch (err) {
-      console.error("Error en /api/files/upload-excel:", err);
-      return res.status(500).json({
-        ok: false,
-        message: "Error procesando Excel",
-        error: String(err?.message || err)
-      });
     }
-  }
 );
 
 /**
@@ -182,6 +184,25 @@ router.post(
       }
       if (!req.file) {
         return res.status(400).json({ ok: false, message: "Falta archivo" });
+      }
+
+      // Validation: File Type
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const allowed = [".pdf", ".ai", ".png", ".jpg", ".jpeg", ".zip", ".rar", ".7z"];
+      if (!allowed.includes(ext)) {
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({ ok: false, message: "Tipo de archivo no permitido." });
+      }
+
+      // Security: Check Assignment for Designers
+      if (req.user.role === "DESIGNER") {
+        const assignment = await prisma.assignment.findFirst({
+          where: { modelKey: String(modelKey), assigneeId: req.user.id }
+        });
+        if (!assignment) {
+          fs.unlinkSync(req.file.path);
+          return res.status(403).json({ ok: false, message: "No tienes permiso para subir archivos a este modelo." });
+        }
       }
 
       const url = `/uploads/${req.file.filename}`;

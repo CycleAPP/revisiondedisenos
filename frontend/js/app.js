@@ -580,17 +580,21 @@ $("btnSubmit").onclick = async () => {
   if (!session.token) return toast("Inicia sesión", "error");
   const id = prompt("ID de la tarea a enviar (DONE)");
   if (!id) return;
-  const r = await fetch(API + "/api/assignments/" + id + "/submit", { method: "PUT", headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" } });
-  const j = await r.json();
-  if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
+  spinner($("btnSubmit"), true);
+  try {
+    const r = await fetch(API + "/api/assignments/" + id + "/submit", { method: "PUT", headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" } });
+    const j = await r.json();
+    if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
 
-  Swal.fire({
-    title: '¡Enviado!',
-    text: 'Tu diseño ha sido enviado al administrador.',
-    icon: 'success',
-    confirmButtonText: 'Genial'
-  });
-  loadDashboard();
+    Swal.fire({
+      title: '¡Enviado!',
+      text: 'Tu diseño ha sido enviado al administrador.',
+      icon: 'success',
+      confirmButtonText: 'Genial'
+    });
+    loadDashboard();
+  } catch { toast("Error de red", "error"); }
+  finally { spinner($("btnSubmit"), false); }
 };
 
 /* -------- STUDIO (detalle) -------- */
@@ -634,19 +638,23 @@ $("btnStudioLoadTexts").onclick = async () => {
   const key = currentStudio.modelKey;
   if (!key) return toast("Falta modelKey", "error");
 
-  const r = await fetch(API + "/api/expected/" + encodeURIComponent(key), {
-    headers: { Authorization: "Bearer " + session.token }
-  });
-  const j = await r.json();
-  if (!r.ok || !j.ok) return toast(j.message || "Error leyendo Excel", "error");
+  spinner($("btnStudioLoadTexts"), true);
+  try {
+    const r = await fetch(API + "/api/expected/" + encodeURIComponent(key), {
+      headers: { Authorization: "Bearer " + session.token }
+    });
+    const j = await r.json();
+    if (!r.ok || !j.ok) return toast(j.message || "Error leyendo Excel", "error");
 
-  currentStudio.expected = j;
-  const layout = j.requiredTexts || {};
+    currentStudio.expected = j;
+    const layout = j.requiredTexts || {};
 
-  $("studioTexts").innerHTML =
-    `<h4 class="font-semibold mb-1">Modelo ${j.modelKey}</h4>` +
-    renderExpectedLayout(layout);
-  toast("Textos listos", "success");
+    $("studioTexts").innerHTML =
+      `<h4 class="font-semibold mb-1">Modelo ${j.modelKey}</h4>` +
+      renderExpectedLayout(layout);
+    toast("Textos listos", "success");
+  } catch { toast("Error de red", "error"); }
+  finally { spinner($("btnStudioLoadTexts"), false); }
 };
 
 
@@ -720,20 +728,24 @@ $("btnStudioSend").onclick = async () => {
 
   const overall = currentStudio.validation?.overall || "PENDING";
 
-  const r = await fetch(API + "/api/assignments/" + id + "/submit", {
-    method: "PUT",
-    headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
-    body: JSON.stringify({ overall })
-  });
-  const j = await r.json();
-  if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
+  spinner($("btnStudioSend"), true);
+  try {
+    const r = await fetch(API + "/api/assignments/" + id + "/submit", {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
+      body: JSON.stringify({ overall })
+    });
+    const j = await r.json();
+    if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
 
-  Swal.fire({
-    title: '¡Enviado!',
-    text: 'Tu diseño ha sido enviado al líder para revisión.',
-    icon: 'success',
-    confirmButtonText: 'Entendido'
-  });
+    Swal.fire({
+      title: '¡Enviado!',
+      text: 'Tu diseño ha sido enviado al líder para revisión.',
+      icon: 'success',
+      confirmButtonText: 'Entendido'
+    });
+  } catch { toast("Error de red", "error"); }
+  finally { spinner($("btnStudioSend"), false); }
 };
 
 // Solicitar aprobación del líder
@@ -742,14 +754,18 @@ $("btnStudioRequest").onclick = async () => {
   const id = currentStudio.assignmentId;
   if (!id) return toast("Falta ID de tarea", "error");
   const overall = currentStudio.validation?.overall || "PENDING";
-  const r = await fetch(API + "/api/assignments/" + id + "/request-approval", {
-    method: "POST",
-    headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
-    body: JSON.stringify({ overall })
-  });
-  const j = await r.json();
-  if (!r.ok || !j.ok) return toast(j.message || "No se pudo solicitar", "error");
-  toast("Aprobación solicitada al líder", "success");
+  spinner($("btnStudioRequest"), true);
+  try {
+    const r = await fetch(API + "/api/assignments/" + id + "/request-approval", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
+      body: JSON.stringify({ overall })
+    });
+    const j = await r.json();
+    if (!r.ok || !j.ok) return toast(j.message || "No se pudo solicitar", "error");
+    toast("Aprobación solicitada al líder", "success");
+  } catch { toast("Error de red", "error"); }
+  finally { spinner($("btnStudioRequest"), false); }
 };
 
 /* -------- IA contextual dentro del Studio (usa tu /api/assist) -------- */

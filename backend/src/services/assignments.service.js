@@ -31,7 +31,7 @@ export const delegateAssignmentService = async ({ assignmentIds, assigneeId }) =
         title: "¡Tienes nuevas tareas asignadas!",
         message: `<p>Hola <strong>${assignee.name}</strong>,</p><p>Se te han asignado <strong>${assignments.length}</strong> nuevas tareas para trabajar.</p>`,
         items,
-        actionLink: "http://lumina-design.com", // Replace with actual URL if known, or just generic
+        actionLink: "https://designlumina.ciklo.me/",
         actionText: "Ir al Dashboard"
       });
 
@@ -101,9 +101,13 @@ export const deleteAssignmentService = async (id) => {
   return prisma.assignment.delete({ where: { id } });
 };
 
-export const submitAssignmentService = async ({ id, userId, overall }) => {
+export const submitAssignmentService = async ({ id, userId, overall, userRole }) => {
   const assignment = await prisma.assignment.findUnique({ where: { id } });
   if (!assignment) throw new Error("Tarea no encontrada");
+
+  if (userRole === "DESIGNER" && assignment.assigneeId !== userId) {
+    throw new Error("No tienes permiso para entregar esta tarea.");
+  }
 
   // Update assignment status to DONE (meaning "Submitted for Review")
   const updated = await prisma.assignment.update({
@@ -134,6 +138,6 @@ export const submitAssignmentService = async ({ id, userId, overall }) => {
   return updated;
 };
 
-export const requestApprovalService = async ({ id, userId, overall }) => {
-  return submitAssignmentService({ id, userId, overall });
+export const requestApprovalService = async ({ id, userId, overall, userRole }) => {
+  return submitAssignmentService({ id, userId, overall, userRole });
 };
