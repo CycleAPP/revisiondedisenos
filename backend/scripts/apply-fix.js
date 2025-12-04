@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 async function main() {
     try {
-        const sqlPath = path.join(__dirname, "fix-schema.sql");
+        const sqlPath = path.join(__dirname, "migrate-db.sql");
         const sql = fs.readFileSync(sqlPath, "utf8");
 
         console.log("Executing SQL fix...");
