@@ -54,6 +54,7 @@ export const listReviewsService = async ({ userId, role }) => {
 };
 
 import { sendEmail } from "./email.service.js";
+import { getEmailTemplate } from "../utils/emailTemplates.js";
 
 export const updateReviewStatusService = async ({ id, status, notes, leaderId }) => {
     // status is 'APPROVED' or 'REJECTED'
@@ -90,15 +91,24 @@ export const updateReviewStatusService = async ({ id, status, notes, leaderId })
     // Notify Designer
     try {
         if (assignment.assignee && assignment.assignee.email) {
-            const subject = status === "APPROVED" ? "Diseño Aprobado ✅" : "Diseño Rechazado ❌";
-            const color = status === "APPROVED" ? "green" : "red";
+            const isApproved = status === "APPROVED";
+            const subject = isApproved ? "¡Diseño Aprobado! ✅" : "Correcciones Requeridas ❌";
+            const title = isApproved ? "Diseño Aprobado" : "Revisión Completada";
+            const color = isApproved ? "#16a34a" : "#dc2626";
+
+            const html = getEmailTemplate({
+                title,
+                message: `<p>Hola <strong>${assignment.assignee.name}</strong>,</p>
+                        <p>El estatus de tu diseño para <strong>${assignment.modelKey}</strong> ha cambiado a: <span style="color:${color};font-weight:bold">${status}</span>.</p>
+                        ${notes ? `<p style="background: ${isApproved ? '#f0fdf4' : '#fef2f2'}; padding: 10px; border-left: 4px solid ${color}; font-style: italic;">"${notes}"</p>` : ""}`,
+                actionLink: "http://lumina-design.com",
+                actionText: "Ver Detalles"
+            });
+
             await sendEmail({
                 to: assignment.assignee.email,
                 subject: `${subject} - ${assignment.modelKey}`,
-                html: `<p>Hola ${assignment.assignee.name},</p>
-                       <p>Tu diseño para <strong>${assignment.modelKey}</strong> ha sido <span style="color:${color};font-weight:bold">${status}</span>.</p>
-                       ${notes ? `<p><strong>Notas:</strong> ${notes}</p>` : ""}
-                       <p>Ingresa a la plataforma para más detalles.</p>`
+                html
             });
         }
     } catch (e) { console.error("Error sending email:", e); }

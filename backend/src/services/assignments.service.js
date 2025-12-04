@@ -7,6 +7,7 @@ export const createAssignmentService = async ({ modelKey, title, description, cr
 };
 
 import { sendEmail } from "./email.service.js";
+import { getEmailTemplate } from "../utils/emailTemplates.js";
 
 export const delegateAssignmentService = async ({ assignmentIds, assigneeId }) => {
   // assignmentIds is array of numbers
@@ -19,14 +20,25 @@ export const delegateAssignmentService = async ({ assignmentIds, assigneeId }) =
   try {
     const assignee = await prisma.user.findUnique({ where: { id: Number(assigneeId) } });
     if (assignee && assignee.email) {
-      const savedSettings = JSON.parse(localStorage.getItem("settings_" + assignee.id) || "{}"); // Can't access localStorage here, need DB settings or assume yes for now.
-      // Actually, settings are in localStorage on frontend. Backend doesn't know about them unless we store them in DB.
-      // For now, let's just send it.
+      // Fetch assignment details for the email
+      const assignments = await prisma.assignment.findMany({
+        where: { id: { in: assignmentIds.map(Number) } },
+        select: { modelKey: true, title: true }
+      });
+
+      const items = assignments.map(a => `<strong>${a.modelKey}</strong>: ${a.title}`);
+      const html = getEmailTemplate({
+        title: "¡Tienes nuevas tareas asignadas!",
+        message: `<p>Hola <strong>${assignee.name}</strong>,</p><p>Se te han asignado <strong>${assignments.length}</strong> nuevas tareas para trabajar.</p>`,
+        items,
+        actionLink: "http://lumina-design.com", // Replace with actual URL if known, or just generic
+        actionText: "Ir al Dashboard"
+      });
 
       await sendEmail({
         to: assignee.email,
-        subject: "Nueva Tarea Asignada - Diseño Empaque",
-        html: `<p>Hola ${assignee.name},</p><p>Se te han asignado ${assignmentIds.length} nuevas tareas.</p><p>Ingresa a la plataforma para verlas.</p>`
+        subject: `Nueva Asignación (${assignments.length} tareas) - Diseño Empaque`,
+        html
       });
     }
   } catch (e) { console.error("Error sending email:", e); }
