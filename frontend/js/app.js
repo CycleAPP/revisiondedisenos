@@ -960,21 +960,35 @@ async function loadLeaderAssigned() {
   box.innerHTML = '<div class="skeleton"></div>';
 
   try {
-    const r = await fetch(API + "/api/assignments/assigned", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
+    const [r, uRes] = await Promise.all([
+      fetch(API + "/api/assignments/assigned", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" }),
+      fetch(API + "/api/users", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" })
+    ]);
+
     const j = await r.json();
+    const u = await uRes.json();
+    const users = u.data || [];
+    const userMap = {};
+    users.forEach(user => userMap[user.id] = user);
+
     if (!r.ok || !j.ok) {
       box.innerHTML = '<div class="text-sm text-red-400">Error cargando asignadas</div>';
       return;
     }
-    const rows = (j.data || []).map(a => [
-      a.modelKey,
-      a.title,
-      a.assigneeId ? `User #${a.assigneeId}` : "N/A", // Could map to name if we had user list handy
-      {
-        html: true,
-        content: `<button class="text-red-500 hover:text-red-700 btn-delete-task" data-id="${a.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`
-      }
-    ]);
+    const rows = (j.data || []).map(a => {
+      const assignee = userMap[a.assigneeId];
+      const assigneeText = assignee ? `${assignee.name} <span class="text-xs opacity-50">(${assignee.email})</span>` : "N/A";
+
+      return [
+        a.modelKey,
+        a.title,
+        { html: true, content: assigneeText },
+        {
+          html: true,
+          content: `<button class="text-red-500 hover:text-red-700 btn-delete-task" data-id="${a.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`
+        }
+      ];
+    });
 
     if (rows.length === 0) {
       box.innerHTML = '<div class="text-sm text-gray-400 italic">No hay tareas asignadas.</div>';
@@ -1142,7 +1156,7 @@ async function loadLeaderReviews() {
         v.id,
         v.modelKey,
         v.designerName || "Desconocido",
-        iaBadge,
+        { html: true, content: iaBadge },
         {
           html: true,
           content: `<div class="text-xs max-w-[200px] truncate" title="${escapeHTML(v.details?.notes || "")}">${escapeHTML(v.details?.notes || "Sin notas")}</div>`
@@ -1163,7 +1177,10 @@ async function loadLeaderReviews() {
       v.id,
       v.modelKey,
       v.designerName || "Desconocido",
-      v.iaStatus === "WARNING" ? `<span class="badge badge-warning text-xs flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3 h-3"></i> WARNING</span>` : `<span class="badge badge-success text-xs">OK</span>`,
+      {
+        html: true,
+        content: v.iaStatus === "WARNING" ? `<span class="badge badge-warning text-xs flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3 h-3"></i> WARNING</span>` : `<span class="badge badge-success text-xs">OK</span>`
+      },
       new Date(v.leaderAt || v.updatedAt).toLocaleDateString(),
       {
         html: true,
