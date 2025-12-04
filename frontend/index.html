@@ -10,6 +10,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Estilos de la UI -->
   <link rel="stylesheet" href="/css/ui.css" />
@@ -334,7 +335,8 @@
               <div class="space-y-3">
                 <input id="taskModelKey" class="input" placeholder="SKU (ej. SKU-001)" />
                 <input id="taskTitle" class="input" placeholder="Título del proyecto" />
-                <input id="taskPackaging" class="input" placeholder="Tipo de empaque / esqueleto (ej. Full Color Box)" />
+                <input id="taskPackaging" class="input"
+                  placeholder="Tipo de empaque / esqueleto (ej. Full Color Box)" />
                 <div class="grid grid-cols-2 gap-3">
                   <select id="taskRetailer" class="input">
                     <option value="" disabled selected>Selecciona Retailer</option>
@@ -603,7 +605,8 @@
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-1 card p-6 space-y-4 bg-gradient-to-b from-indigo-50 to-white border border-indigo-100">
+            <div
+              class="lg:col-span-1 card p-6 space-y-4 bg-gradient-to-b from-indigo-50 to-white border border-indigo-100">
               <div class="flex items-start gap-3">
                 <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center">
                   <i data-lucide="upload" class="w-5 h-5"></i>

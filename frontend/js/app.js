@@ -545,7 +545,14 @@ $("btnSubmit").onclick = async () => {
   const r = await fetch(API + "/api/assignments/" + id + "/submit", { method: "PUT", headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" } });
   const j = await r.json();
   if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
-  toast("Enviado al admin", "success"); loadDashboard();
+
+  Swal.fire({
+    title: '¡Enviado!',
+    text: 'Tu diseño ha sido enviado al administrador.',
+    icon: 'success',
+    confirmButtonText: 'Genial'
+  });
+  loadDashboard();
 };
 
 /* -------- STUDIO (detalle) -------- */
@@ -605,6 +612,22 @@ $("btnStudioValidate").onclick = async () => {
   finally { spinner($("btnStudioValidate"), false); }
 };
 
+// File Preview Logic
+$("studioFile").onchange = (e) => {
+  const file = e.target.files[0];
+  if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      $("studioUploadResp").innerHTML = `<img src="${e.target.result}" class="max-h-32 mx-auto rounded shadow-sm" />`;
+      $("studioUploadResp").classList.remove("hidden");
+    };
+    reader.readAsDataURL(file);
+  } else if (file) {
+    $("studioUploadResp").textContent = `Archivo seleccionado: ${file.name}`;
+    $("studioUploadResp").classList.remove("hidden");
+  }
+};
+
 $("btnStudioUpload").onclick = async () => {
   if (!session.token) return toast("Inicia sesión", "error");
   const key = currentStudio.modelKey;
@@ -617,14 +640,18 @@ $("btnStudioUpload").onclick = async () => {
     const j = await r.json();
     if (!r.ok || !j.ok) return toast(j.message || "Error al subir diseño", "error");
 
-    // Success Animation
+    // Persistent Success State
     $("uploadSuccess").classList.remove("hidden");
     if (window.lucide) lucide.createIcons();
-    toast("Diseño subido correctamente", "success");
 
-    setTimeout(() => {
-      $("uploadSuccess").classList.add("hidden");
-    }, 2500);
+    // Show persistent card instead of toast
+    $("studioUploadResp").innerHTML = `
+      <div class="bg-green-50 border border-green-200 rounded p-3 text-center">
+        <p class="text-green-700 font-bold text-sm">¡Archivo guardado!</p>
+        <p class="text-xs text-green-600">${file.name}</p>
+      </div>
+    `;
+    $("studioUploadResp").classList.remove("hidden");
 
   } catch { toast("Error de red", "error"); }
   finally { spinner($("btnStudioUpload"), false); }
@@ -644,7 +671,13 @@ $("btnStudioSend").onclick = async () => {
   });
   const j = await r.json();
   if (!r.ok || !j.ok) return toast(j.message || "No se pudo enviar", "error");
-  toast("Enviado al líder", "success");
+
+  Swal.fire({
+    title: '¡Enviado!',
+    text: 'Tu diseño ha sido enviado al líder para revisión.',
+    icon: 'success',
+    confirmButtonText: 'Entendido'
+  });
 };
 
 // Solicitar aprobación del líder
@@ -1123,8 +1156,15 @@ async function updateReviewStatus(id, action) {
   });
 
   const j = await r.json();
+  const j = await r.json();
   if (r.ok && j.ok) {
-    toast("Actualizado", "success");
+    Swal.fire({
+      title: action === "approve" ? '¡Aprobado!' : 'Rechazado',
+      text: action === "approve" ? 'El diseño ha sido aprobado correctamente.' : 'La tarea ha sido rechazada.',
+      icon: action === "approve" ? 'success' : 'error',
+      timer: 1500,
+      showConfirmButton: false
+    });
     $("btnLeaderValidations").click();
   } else {
     toast(j.message || "Error", "error");

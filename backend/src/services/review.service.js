@@ -2,7 +2,7 @@ import prisma from "../config/prisma.js";
 
 export const listReviewsService = async ({ userId, role }) => {
     let where = {
-        status: "DONE" // We assume DONE means "Submitted for Review"
+        status: { in: ["DONE", "APPROVED", "REJECTED"] }
     };
 
     if (role === "LEADER") {
@@ -37,8 +37,8 @@ export const listReviewsService = async ({ userId, role }) => {
             id: a.id, // Use assignment ID as review ID
             assignmentId: a.id,
             modelKey: a.modelKey,
-            status: "SUBMITTED", // Frontend expects this
-            leaderStatus: "PENDING", // Frontend expects this
+            status: a.status,
+            leaderStatus: a.status === "APPROVED" ? "APPROVED" : (a.status === "REJECTED" ? "REJECTED" : "PENDING"),
             iaStatus: validation ? validation.status : "PENDING",
             designerName: a.assignee?.name || "Desconocido",
             designerEmail: a.assignee?.email || "",
