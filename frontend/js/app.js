@@ -52,6 +52,8 @@ function toggleTheme() {
   console.log("Toggling theme:", currentTheme, "->", newTheme);
   currentTheme = newTheme;
   applyTheme(currentTheme);
+  // Re-render charts to update colors
+  if (typeof loadDashboardCharts === 'function') loadDashboardCharts();
 }
 
 function applyTheme(theme) {
@@ -1316,8 +1318,8 @@ function drawChart(id, title, labels, data, colors) {
   if (!ctx) return;
   if (charts[id]) charts[id].destroy();
 
-  const legendColor = cssVar('--text');
-  const titleColor = cssVar('--text');
+  const legendColor = cssVar('--text-main');
+  const titleColor = cssVar('--text-main');
 
   charts[id] = new Chart(ctx, {
     type: 'doughnut',
