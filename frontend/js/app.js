@@ -348,6 +348,18 @@ function refreshRolePanels() {
   loadSkeletons({ force: true }).catch(() => { /* silencioso */ });
 }
 
+function getStatusColor(status) {
+  switch (status) {
+    case "NEW": return "border-blue-400";
+    case "IN_PROGRESS": return "border-amber-400";
+    case "REVIEW": return "border-purple-400";
+    case "DONE": return "border-green-400";
+    case "APPROVED": return "border-green-500";
+    case "REJECTED": return "border-red-400";
+    default: return "border-gray-300";
+  }
+}
+
 async function autoLoadDesignerTasks() {
   const btn = $("btnMyAssignments");
   if (!btn || btn.disabled) return;
@@ -357,7 +369,10 @@ async function autoLoadDesignerTasks() {
 $("btnMyAssignments").onclick = async () => {
   if (!session.token) return toast("Inicia sesión", "error");
 
-  $("assignmentsBox").innerHTML = '<div class="skeleton"></div><div class="skeleton mt-2"></div>';
+  const skel = '<div class="card h-32 skeleton"></div>';
+  $("designerNewBox").innerHTML = skel;
+  $("designerProgressBox").innerHTML = skel;
+  $("designerDoneBox").innerHTML = skel;
 
   try {
     await loadSkeletons({ force: true });
@@ -368,43 +383,55 @@ $("btnMyAssignments").onclick = async () => {
     const j = await r.json();
 
     if (!r.ok || !j.ok) {
-      $("assignmentsBox").innerHTML = "";
+      $("designerNewBox").innerHTML = "";
+      $("designerProgressBox").innerHTML = "";
+      $("designerDoneBox").innerHTML = "";
       return toast(j.message || "Error cargando tareas", "error");
     }
 
-    const rows = (j.data || []).map(a => [
-      a.id,
-      a.modelKey,
-      a.title,
-      a.status,
-      a.projectType || "-",
-      a.deadline ? new Date(a.deadline).toLocaleDateString() : "-",
-      `<span class="task-timer font-mono text-xs" data-start="${a.createdAt}">--</span>`,
-      {
-        html: true,
-        content: `
-          <div class="flex gap-2">
-            <button class="btn btn-ghost btn-xs open-studio" 
-              data-id="${a.id}" 
-              data-model="${a.modelKey}"
-              data-packaging="${a.projectType || a.packagingType || ''}">
-              <i data-lucide="app-window" class="w-4 h-4"></i> Studio
-            </button>
-            ${renderSkeletonButton(a.projectType || a.packagingType)}
-          </div>
-        `
-      }
-    ]);
+    // Filter by status
+    const newTasks = (j.data || []).filter(a => a.status === "NEW" || a.status === "PENDING");
+    const inProgressTasks = (j.data || []).filter(a => a.status === "IN_PROGRESS" || a.status === "REVIEW");
+    const doneTasks = (j.data || []).filter(a => a.status === "DONE" || a.status === "APPROVED" || a.status === "REJECTED");
 
-    $("assignmentsBox").innerHTML = renderTable(
-      ["ID", "ModelKey", "Título", "Estado", "Tipo", "Deadline", "Tiempo", "Acciones"],
-      rows
-    );
+    const renderCard = (a) => `
+      <div class="card p-4 hover:shadow-md transition-shadow border-l-4 ${getStatusColor(a.status)}">
+        <div class="flex justify-between items-start mb-2">
+          <span class="badge badge-ghost text-xs">${a.projectType || "General"}</span>
+          <span class="text-xs text-gray-400 font-mono">#${a.id}</span>
+        </div>
+        <h4 class="font-bold text-gray-800 mb-1 truncate" title="${escapeHTML(a.title)}">${escapeHTML(a.title)}</h4>
+        <div class="text-xs text-gray-500 mb-3 font-mono">${a.modelKey}</div>
+        
+        <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+          <div class="flex items-center gap-1" title="Deadline">
+            <i data-lucide="calendar" class="w-3 h-3"></i> ${a.deadline ? new Date(a.deadline).toLocaleDateString() : "--"}
+          </div>
+          <div class="flex items-center gap-1 font-mono task-timer" data-start="${a.createdAt}">
+            <i data-lucide="clock" class="w-3 h-3"></i> --
+          </div>
+        </div>
+
+        <div class="flex gap-2 mt-auto">
+          <button class="btn btn-sm btn-primary flex-1 open-studio" 
+            data-id="${a.id}" 
+            data-model="${a.modelKey}"
+            data-packaging="${a.projectType || a.packagingType || ''}">
+            <i data-lucide="app-window" class="w-4 h-4"></i> Studio
+          </button>
+          ${renderSkeletonButton(a.projectType || a.packagingType)}
+        </div>
+      </div>
+    `;
+
+    $("designerNewBox").innerHTML = newTasks.length ? newTasks.map(renderCard).join("") : '<div class="text-sm text-gray-400 italic col-span-full">¡Estás al día! No tienes tareas nuevas.</div>';
+    $("designerProgressBox").innerHTML = inProgressTasks.length ? inProgressTasks.map(renderCard).join("") : '<div class="text-sm text-gray-400 italic col-span-full">No hay tareas en progreso.</div>';
+    $("designerDoneBox").innerHTML = doneTasks.length ? doneTasks.map(renderCard).join("") : '<div class="text-sm text-gray-400 italic col-span-full">No hay tareas finalizadas.</div>';
 
     startTaskTimers();
 
     // Event delegation for robustness
-    $("assignmentsBox").onclick = (e) => {
+    const handleStudioClick = (e) => {
       const btn = e.target.closest(".open-studio");
       if (btn) {
         openStudio({
@@ -415,11 +442,18 @@ $("btnMyAssignments").onclick = async () => {
       }
     };
 
+    $("designerNewBox").onclick = handleStudioClick;
+    $("designerProgressBox").onclick = handleStudioClick;
+    $("designerDoneBox").onclick = handleStudioClick;
+
+
     if (window.lucide) lucide.createIcons();
     checkDesignerNotifications();
   } catch (e) {
     console.error("Error loading tasks:", e);
-    $("assignmentsBox").innerHTML = "";
+    $("designerNewBox").innerHTML = "";
+    $("designerProgressBox").innerHTML = "";
+    $("designerDoneBox").innerHTML = "";
     toast("Error de red al cargar tareas", "error");
   }
 };

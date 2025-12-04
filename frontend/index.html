@@ -202,9 +202,34 @@
               <!-- Notifications Area -->
               <div id="designerNotifications" class="mb-4 space-y-2 hidden"></div>
 
-              <div id="assignmentsBox" class="mt-2">
-                <div class="skeleton"></div>
-                <div class="skeleton mt-2"></div>
+              <!-- Tareas Nuevas -->
+              <div class="mb-6">
+                <h3 class="font-semibold text-lg mb-3 flex items-center gap-2 text-blue-600">
+                  <i data-lucide="sparkles" class="w-5 h-5"></i> Nuevas Asignaciones
+                </h3>
+                <div id="designerNewBox" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="skeleton h-32"></div>
+                </div>
+              </div>
+
+              <!-- En Progreso -->
+              <div class="mb-6">
+                <h3 class="font-semibold text-lg mb-3 flex items-center gap-2 text-amber-600">
+                  <i data-lucide="pen-tool" class="w-5 h-5"></i> En Progreso
+                </h3>
+                <div id="designerProgressBox" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="text-sm text-gray-400 italic">No hay tareas en progreso.</div>
+                </div>
+              </div>
+
+              <!-- Historial / Aprobadas -->
+              <div>
+                <h3 class="font-semibold text-lg mb-3 flex items-center gap-2 text-green-600">
+                  <i data-lucide="check-circle-2" class="w-5 h-5"></i> Finalizadas / Aprobadas
+                </h3>
+                <div id="designerDoneBox" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="text-sm text-gray-400 italic">No hay tareas finalizadas.</div>
+                </div>
               </div>
             </div>
 
