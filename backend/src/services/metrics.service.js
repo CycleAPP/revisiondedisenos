@@ -141,6 +141,11 @@ export const getDesignerMetricsService = async (userId) => {
     // AI Errors for these assignments (via Validation)
     // We need to fetch validations for these assignments' modelKeys
     const modelKeys = assignments.map(a => a.modelKey).filter(Boolean);
+
+    // Fix: Only consider validations if the assignment is not REJECTED (or handled above) 
+    // Actually, we want to show AI errors for the *current* state of the assignment.
+    // If the assignment exists, we show its validation errors.
+
     if (modelKeys.length > 0) {
         const validations = await prisma.validation.findMany({
             where: {

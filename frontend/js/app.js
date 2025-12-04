@@ -1499,7 +1499,7 @@ setTimeout(() => loadSkeletons({ force: true }), 1000); // Initial load
 /* -------------------------- Guía de Usuario (Drawer) -------------------------- */
 /* -------------------------- Guía de Usuario (Drawer) -------------------------- */
 window.showUserGuide = () => {
-  const role = session.user?.role || "GUEST";
+  const role = session.role || "GUEST";
   let content = "";
 
   if (role === "DESIGNER") {
