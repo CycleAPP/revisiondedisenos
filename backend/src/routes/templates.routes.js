@@ -43,16 +43,17 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
     const { type, name } = req.body;
 
     try {
-        name: name || req.file.originalname,
+        const newTemplate = await createTemplateService({
+            name: name || req.file.originalname,
             type: type || "General",
-                filename: req.file.filename,
-                    path: "archivosdelumina/templates/" + req.file.filename,
-                        uploadedById: req.user.id
-    });
-res.json({ ok: true, data: newTemplate });
+            filename: req.file.filename,
+            path: "archivosdelumina/templates/" + req.file.filename,
+            uploadedById: req.user.id
+        });
+        res.json({ ok: true, data: newTemplate });
     } catch (e) {
-    res.status(500).json({ ok: false, message: e.message });
-}
+        res.status(500).json({ ok: false, message: e.message });
+    }
 });
 
 // DELETE /api/templates/:id
