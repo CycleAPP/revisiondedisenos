@@ -55,6 +55,7 @@ model User {
 
   // Relación con FileRecord (archivos subidos por el usuario)
   uploadedFiles      FileRecord[]
+  uploadedTemplates  Template[]
 
   // Chat/Asistente (hilos que le pertenecen)
   chatThreads        ChatThread[]
