@@ -8,7 +8,8 @@ export const listUsersService = async () => {
       email: true,
       role: true,
       teamId: true
-    });
+    }
+  });
 };
 
 export const setRoleService = async (id, role) => {

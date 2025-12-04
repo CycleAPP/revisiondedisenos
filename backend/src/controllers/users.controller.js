@@ -1,5 +1,5 @@
 import { ok, fail } from "../utils/response.js";
-import { listUsers as listUsersService, setRoleService, assignToTeamService, getUserMetricsService } from "../services/users.service.js";
+import { listUsersService, setRoleService, assignToTeamService, getUserMetricsService } from "../services/users.service.js";
 
 export const getMetrics = async (req, res) => {
   try {
