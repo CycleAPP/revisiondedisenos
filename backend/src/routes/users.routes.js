@@ -45,4 +45,15 @@ router.delete("/:id", auth, async (req, res) => {
   }
 });
 
+router.post("/:id/password", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+    await resetPasswordService(Number(id), password);
+    return res.json({ ok: true, message: "Password updated" });
+  } catch (err) {
+    return res.status(400).json({ ok: false, message: err.message });
+  }
+});
+
 export default router;
