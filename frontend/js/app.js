@@ -42,6 +42,15 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".nav-icon[data-tab]").forEach(btn => {
     btn.addEventListener("click", () => selectTab(btn.dataset.tab));
   });
+
+  // Landing Page Logic
+  if ($("btnEnterApp")) {
+    $("btnEnterApp").onclick = () => {
+      $("landing-page").classList.add("hidden");
+      $("app-container").classList.remove("hidden");
+      selectTab("tab-login");
+    };
+  }
 });
 
 /* --- Theme Logic --- */
@@ -1623,10 +1632,16 @@ ensurePersonalThread();
 loadDashboard();
 
 function checkSession() {
-  if (!session.token) {
-    clearSession();
-  } else {
+  if (session.token) {
+    // Logged in
+    if ($("landing-page")) $("landing-page").classList.add("hidden");
+    if ($("app-container")) $("app-container").classList.remove("hidden");
     renderTop();
+  } else {
+    // Not logged in -> Show Landing
+    if ($("landing-page")) $("landing-page").classList.remove("hidden");
+    if ($("app-container")) $("app-container").classList.add("hidden");
+    clearSession(); // Ensure UI is reset
   }
 }
 
