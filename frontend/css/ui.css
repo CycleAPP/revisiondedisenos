@@ -826,3 +826,18 @@ body.theme-dark .upload-success-overlay {
 .perspective-1000 {
   perspective: 1000px;
 }
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 80px rgba(59,130,246,0.8));
+  }
+  20%, 24%, 55% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 20px rgba(59,130,246,0.4));
+  }
+}
+
+.animate-flicker {
+  animation: float 6s ease-in-out infinite, flicker 4s infinite;
+}

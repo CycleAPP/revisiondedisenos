@@ -55,7 +55,7 @@
   </div>
 
   <!-- LANDING PAGE -->
-  <section id="landing-page" class="fixed inset-0 z-[100] bg-black text-white overflow-hidden hidden">
+  <section id="landing-page" class="fixed inset-0 z-[100] bg-black text-white overflow-y-auto hidden">
     <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
     <div class="absolute inset-0 bg-gradient-to-br from-black via-[#0a0a12] to-[#050508]"></div>
 
@@ -76,7 +76,7 @@
       </div>
     </nav>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-8 h-[calc(100vh-100px)] flex items-center">
+    <div class="relative z-10 max-w-7xl mx-auto px-8 min-h-[calc(100vh-100px)] flex items-center pb-20">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
 
         <!-- Text Content -->
@@ -95,7 +95,7 @@
               con métricas de construcción y diseño de alta capacidad.
             </p>
             <p class="text-gray-500 text-sm max-w-md">
-              Tecnología de iluminación LED cuántica para análisis de estructuras y validación de artes en tiempo real.
+              Tecnología de validación de diseños para análisis de estructuras y validación de artes en tiempo real.
             </p>
           </div>
 
@@ -143,15 +143,11 @@
             style="transform: rotateX(60deg);"></div>
 
           <!-- Image -->
-          <img src="/uploads/landing_light.png"
-            class="relative z-10 w-full max-w-md drop-shadow-[0_0_50px_rgba(59,130,246,0.5)] animate-float"
-            alt="Luz Futurista">
+          <img src="/uploads/landing_led.png"
+            class="relative z-10 w-full max-w-md drop-shadow-[0_0_80px_rgba(59,130,246,0.8)] animate-float animate-flicker"
+            alt="Luz LED">
 
           <!-- Floating Labels -->
-          <div class="absolute top-1/4 right-0 text-right">
-            <div class="text-xs font-mono text-blue-400 mb-1">LÚMENES</div>
-            <div class="text-2xl font-bold">5000+</div>
-          </div>
           <div class="absolute bottom-1/4 left-0">
             <div class="text-xs font-mono text-green-400 mb-1">EFICIENCIA</div>
             <div class="text-2xl font-bold">99.9%</div>
