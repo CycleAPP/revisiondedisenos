@@ -1,5 +1,5 @@
 import { ok, fail } from "../utils/response.js";
-import { listUsersService, setRoleService, assignToTeamService, getUserMetricsService, deleteUserService } from "../services/users.service.js";
+import { listUsersService, setRoleService, assignToTeamService, getUserMetricsService, deleteUserService, resetPasswordService } from "../services/users.service.js";
 
 export const getMetrics = async (req, res) => {
   try {
@@ -36,5 +36,14 @@ export const deleteUser = async (req, res) => {
     const { id } = req.params;
     await deleteUserService(Number(id));
     return ok(res, { message: "User deleted" });
+  } catch (e) { return fail(res, e.message); }
+};
+export const resetPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+    if (!password) return fail(res, "Password required");
+    await resetPasswordService(Number(id), password);
+    return ok(res, { message: "Password reset" });
   } catch (e) { return fail(res, e.message); }
 };

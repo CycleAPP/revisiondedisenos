@@ -1114,6 +1114,9 @@ $("btnListUsers").onclick = async () => {
           <button class="btn btn-xs btn-outline btn-info" onclick="changeUserRole(${u.id}, '${u.role}')" title="Cambiar Rol">
             <i data-lucide="user-cog" class="w-3 h-3"></i>
           </button>
+          <button class="btn btn-xs btn-outline btn-warning" onclick="resetUserPassword(${u.id})" title="Resetear Contraseña">
+            <i data-lucide="key" class="w-3 h-3"></i>
+          </button>
           <button class="btn btn-xs btn-outline btn-error" onclick="deleteUser(${u.id})" title="Eliminar Usuario">
             <i data-lucide="trash-2" class="w-3 h-3"></i>
           </button>
@@ -1122,6 +1125,25 @@ $("btnListUsers").onclick = async () => {
     }
   ]));
   if (window.lucide) lucide.createIcons();
+};
+
+window.resetUserPassword = async (id) => {
+  const newPass = prompt("Ingresa la nueva contraseña para el usuario:");
+  if (!newPass) return;
+
+  try {
+    const r = await fetch(API + "/api/users/" + id + "/password", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
+      body: JSON.stringify({ password: newPass })
+    });
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      toast("Contraseña actualizada", "success");
+    } else {
+      toast(j.message || "Error actualizando contraseña", "error");
+    }
+  } catch (e) { toast("Error de red", "error"); }
 };
 
 window.deleteUser = async (id) => {
@@ -1330,11 +1352,14 @@ $("btnAssistSend").onclick = async () => {
   $("assistMsg").value = ""; $("assistImage").value = "";
   spinner($("btnAssistSend"), true);
 
+  const savedSettings = JSON.parse(localStorage.getItem(settingsKey()) || "{}");
+  const temperature = savedSettings.aiTemp || 0.2;
+
   try {
     const r = await fetch(API + "/api/assist/chat", {
       method: "POST",
       headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
-      body: JSON.stringify({ threadId: globalThread, message, imageUrl })
+      body: JSON.stringify({ threadId: globalThread, message, imageUrl, temperature })
     });
     const j = await r.json();
     if (!r.ok || !j.ok) return toast(j.message || "Error con asistente", "error");

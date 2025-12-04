@@ -49,7 +49,7 @@ function fallbackReply(userText = "", context = null) {
 }
 
 /** Intenta crear respuesta con OpenAI si está disponible */
-async function tryOpenAIResponse({ prompt, imageUrl }) {
+async function tryOpenAIResponse({ prompt, imageUrl, temperature }) {
   try {
     if (!process.env.OPENAI_API_KEY) return null;
     const OpenAI = (await import("openai")).default;
@@ -73,7 +73,7 @@ async function tryOpenAIResponse({ prompt, imageUrl }) {
         },
         { role: "user", content: input },
       ],
-      temperature: 0.2,
+      temperature: temperature || 0.2,
       max_tokens: 400,
     });
 
@@ -98,7 +98,7 @@ async function tryOpenAIResponse({ prompt, imageUrl }) {
  */
 router.post("/chat", auth, async (req, res) => {
   try {
-    const { message, imageUrl, context } = req.body || {};
+    const { message, imageUrl, context, temperature } = req.body || {};
     let { threadId } = req.body;
 
     if (!message && !imageUrl) {
@@ -127,6 +127,7 @@ router.post("/chat", auth, async (req, res) => {
       (await tryOpenAIResponse({
         prompt,
         imageUrl,
+        temperature: Number(temperature) || 0.2
       })) || fallbackReply(message, context);
 
     // Guarda mensaje del asistente

@@ -44,3 +44,9 @@ export const deleteUserService = async (id) => {
     where: { id }
   });
 };
+export const resetPasswordService = async (id, password) => {
+  return prisma.user.update({
+    where: { id },
+    data: { password } // In a real app, hash this! But for this demo/local, plain text is used as per existing auth.
+  });
+};

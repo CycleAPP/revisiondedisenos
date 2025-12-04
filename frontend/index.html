@@ -729,12 +729,34 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="card p-6">
-              <h3 class="font-semibold text-lg mb-4">Apariencia</h3>
-              <div class="flex gap-3">
-                <button id="btnThemeCrimson" class="hidden">Legacy Crimson</button>
-                <!-- Hidden as we moved to Light/Dark -->
-                <div class="text-sm text-gray-500">
-                  El tema actual se controla desde el botón de la barra superior (Sol/Luna).
+              <h3 class="font-semibold text-lg mb-4">Preferencias de Usuario</h3>
+
+              <div class="space-y-6">
+                <!-- AI Creativity -->
+                <div class="form-control">
+                  <label class="label cursor-pointer justify-between">
+                    <span class="label-text font-medium flex items-center gap-2">
+                      <i data-lucide="brain-circuit" class="w-4 h-4 text-purple-500"></i> Creatividad IA
+                    </span>
+                    <span class="text-xs text-gray-400" id="aiTempLabel">Balanceado (0.5)</span>
+                  </label>
+                  <input type="range" min="0" max="10" value="5" class="range range-xs range-primary"
+                    id="aiTempSlider" />
+                  <div class="w-full flex justify-between text-[10px] px-1 mt-1 text-gray-400">
+                    <span>Estricto</span>
+                    <span>Creativo</span>
+                  </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="form-control">
+                  <label class="label cursor-pointer justify-between">
+                    <span class="label-text font-medium flex items-center gap-2">
+                      <i data-lucide="mail" class="w-4 h-4 text-blue-500"></i> Notificaciones por Correo
+                    </span>
+                    <input type="checkbox" class="toggle toggle-primary" id="emailNotifToggle" />
+                  </label>
+                  <p class="text-xs text-gray-400 mt-1">Recibe un resumen diario de tus tareas pendientes.</p>
                 </div>
               </div>
             </div>
