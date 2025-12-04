@@ -1,0 +1,7 @@
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'Status') THEN
+        CREATE TYPE "Status" AS ENUM ('PENDING', 'IN_PROGRESS', 'DONE', 'APPROVED', 'REJECTED');
+    END IF;
+END$$;
