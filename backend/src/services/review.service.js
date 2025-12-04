@@ -53,10 +53,12 @@ export const listReviewsService = async ({ userId, role }) => {
     return enriched;
 };
 
+import { sendEmail } from "./email.service.js";
+
 export const updateReviewStatusService = async ({ id, status, notes, leaderId }) => {
     // status is 'APPROVED' or 'REJECTED'
     // id is assignmentId now
-    const assignment = await prisma.assignment.findUnique({ where: { id } });
+    const assignment = await prisma.assignment.findUnique({ where: { id }, include: { assignee: true } });
     if (!assignment) throw new Error("Tarea no encontrada");
 
     const newStatus = status === "APPROVED" ? "APPROVED" : "REJECTED";
@@ -84,6 +86,22 @@ export const updateReviewStatusService = async ({ id, status, notes, leaderId })
             });
         }
     }
+
+    // Notify Designer
+    try {
+        if (assignment.assignee && assignment.assignee.email) {
+            const subject = status === "APPROVED" ? "Diseño Aprobado ✅" : "Diseño Rechazado ❌";
+            const color = status === "APPROVED" ? "green" : "red";
+            await sendEmail({
+                to: assignment.assignee.email,
+                subject: `${subject} - ${assignment.modelKey}`,
+                html: `<p>Hola ${assignment.assignee.name},</p>
+                       <p>Tu diseño para <strong>${assignment.modelKey}</strong> ha sido <span style="color:${color};font-weight:bold">${status}</span>.</p>
+                       ${notes ? `<p><strong>Notas:</strong> ${notes}</p>` : ""}
+                       <p>Ingresa a la plataforma para más detalles.</p>`
+            });
+        }
+    } catch (e) { console.error("Error sending email:", e); }
 
     return updated;
 };
