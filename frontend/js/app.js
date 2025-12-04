@@ -1397,7 +1397,46 @@ function drawChart(id, title, labels, data, colors) {
   const ctx = $(id);
   if (!ctx) return;
   if (charts[id]) charts[id].destroy();
+  /* -------------------------- Settings -------------------------- */
+  const settingsKey = () => "settings_" + (session.user?.id || "guest");
 
+  function loadSettings() {
+    const saved = JSON.parse(localStorage.getItem(settingsKey()) || "{}");
+    if ($("aiTempSlider")) {
+      $("aiTempSlider").value = (saved.aiTemp || 0.2) * 10; // 0.2 -> 2
+      updateTempLabel();
+    }
+    if ($("emailNotifToggle")) {
+      $("emailNotifToggle").checked = !!saved.emailNotif;
+    }
+  }
+
+  function saveSettings() {
+    const temp = Number($("aiTempSlider").value) / 10; // 5 -> 0.5
+    const notif = $("emailNotifToggle").checked;
+    localStorage.setItem(settingsKey(), JSON.stringify({ aiTemp: temp, emailNotif: notif }));
+    toast("Preferencias guardadas", "success");
+  }
+
+  if ($("aiTempSlider")) {
+    $("aiTempSlider").oninput = updateTempLabel;
+    $("aiTempSlider").onchange = saveSettings;
+  }
+  if ($("emailNotifToggle")) {
+    $("emailNotifToggle").onchange = saveSettings;
+  }
+
+  function updateTempLabel() {
+    const val = Number($("aiTempSlider").value);
+    const temp = val / 10;
+    let text = "Balanceado";
+    if (temp < 0.3) text = "Estricto";
+    if (temp > 0.7) text = "Creativo";
+    $("aiTempLabel").textContent = `${text} (${temp})`;
+  }
+
+  // Load settings on startup if logged in
+  if (session.token) loadSettings();
   const legendColor = cssVar('--text-main');
   const titleColor = cssVar('--text-main');
 
