@@ -190,6 +190,7 @@ router.post(
       const asset = await createFileAssetService({
         modelKey: String(modelKey).toUpperCase(),
         filename: req.file.filename,
+        originalName: req.file.originalname,
         path: req.file.path,
         url,
         type: "DESIGN",
