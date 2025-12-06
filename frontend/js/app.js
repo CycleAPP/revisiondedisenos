@@ -1763,6 +1763,22 @@ setTimeout(() => loadSkeletons({ force: true }), 1000); // Initial load
 /* -------------------------- Guía de Usuario (Drawer) -------------------------- */
 /* -------------------------- Guía de Usuario (Drawer) -------------------------- */
 window.showUserGuide = () => {
+  if (!session.token) {
+    Swal.fire({
+      title: "Acceso Restringido",
+      text: "Debes iniciar sesión para ver los tutoriales y guías.",
+      icon: "warning",
+      confirmButtonText: "Entendido",
+      customClass: {
+        popup: 'glass-modal',
+        title: 'glass-title',
+        content: 'glass-content',
+        confirmButton: 'glass-btn'
+      }
+    });
+    return;
+  }
+
   const role = session.role || "GUEST";
   let content = "";
 
