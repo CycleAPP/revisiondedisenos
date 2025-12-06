@@ -1784,33 +1784,145 @@ window.showUserGuide = () => {
 
   if (role === "DESIGNER") {
     content = `
-      <h4 class="font-medium text-gray-900">1. Revisa tus tareas</h4>
-      <p>Ve a la pestaña <strong>Diseñador</strong>. Ahí verás tus asignaciones pendientes.</p>
-      <h4 class="font-medium text-gray-900 mt-4">2. Sube tu diseño</h4>
-      <p>Entra al <strong>Studio</strong> de una tarea, carga tu archivo (PDF/Imagen) y usa "Validar Contenido" para que la IA revise textos legales y códigos de barras.</p>
-      <h4 class="font-medium text-gray-900 mt-4">3. Envía a revisión</h4>
-      <p>Si la validación es correcta, el botón "Enviar" se habilitará. Tu líder recibirá la notificación.</p>
+      <div class="space-y-6">
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+          <h4 class="font-bold text-blue-800 text-lg mb-2">👋 ¡Hola Creativo!</h4>
+          <p class="text-blue-700 text-sm">Bienvenido a tu espacio de trabajo. Aquí transformarás ideas en empaques validados y listos para producción.</p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">1</span>
+            Tu Tablero de Mando
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            Ve a la pestaña <strong>Diseñador</strong>. Aquí encontrarás tus <span class="text-blue-600 font-medium">Nuevas Asignaciones</span>.
+            Cada tarjeta te dice qué SKU y qué tipo de empaque necesitas trabajar.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">2</span>
+            El Studio: Tu Taller
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            Al dar clic en "Ir al Studio", entrarás a la zona de validación.
+            <br><br>
+            <ul class="list-disc pl-4 space-y-1">
+              <li><strong>Carga tu Arte:</strong> Sube tu archivo (PDF, JPG, PNG).</li>
+              <li><strong>Consulta a la IA:</strong> Usa el chat para preguntar sobre restricciones legales o detalles del SKU.</li>
+              <li><strong>Validación Mágica:</strong> Presiona "Validar Contenido". La IA leerá tu diseño y buscará errores en textos, códigos de barras y legales.</li>
+            </ul>
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">3</span>
+            Envío y Aprobación
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            Si la IA te da luz verde (o advertencias menores), se habilitará el botón <strong>Enviar</strong>.
+            Tu líder recibirá una notificación inmediata para revisar tu trabajo. ¡Así de fácil!
+          </p>
+        </div>
+      </div>
     `;
   } else if (role === "LEADER") {
     content = `
-      <h4 class="font-medium text-gray-900">1. Crea tareas</h4>
-      <p>En la pestaña <strong>Líder</strong>, usa el formulario "Nueva Tarea" para registrar proyectos y asignar diseñadores.</p>
-      <h4 class="font-medium text-gray-900 mt-4">2. Revisa aprobaciones</h4>
-      <p>En "Validaciones Pendientes" verás los diseños enviados. Puedes aprobarlos o rechazarlos con notas.</p>
-      <h4 class="font-medium text-gray-900 mt-4">3. Monitorea métricas</h4>
-      <p>Usa la sección de métricas para ver el rendimiento de tu equipo y detectar cuellos de botella.</p>
+      <div class="space-y-6">
+        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+          <h4 class="font-bold text-indigo-800 text-lg mb-2">🚀 Panel de Control - Líder</h4>
+          <p class="text-indigo-700 text-sm">Gestiona tu equipo, asigna proyectos y mantén el flujo de trabajo sin interrupciones.</p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">1</span>
+            Creación y Delegación
+          </h4>
+          <div class="ml-8 text-sm text-gray-600 space-y-2">
+            <p>Registra nuevos proyectos en el formulario <strong>Nueva Tarea</strong>. Define el Retailer y la fecha límite.</p>
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <p class="font-medium text-gray-900 mb-1">Tip Pro:</p>
+              <p>Usa las listas de selección múltiple para asignar varias tareas a un diseñador en un solo clic.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">2</span>
+            Revisión Inteligente
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            En <strong>Validaciones Pendientes</strong> verás los diseños que ya pasaron el filtro de la IA.
+            <br>
+            Puedes ver el reporte de la IA, descargar el archivo y <strong>Aprobar</strong> o <strong>Rechazar</strong> con notas específicas.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">3</span>
+            Métricas de Equipo
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            Visualiza quién tiene más carga de trabajo, quién es más rápido y cuáles son los errores más comunes para optimizar tu estrategia.
+          </p>
+        </div>
+      </div>
     `;
   } else if (role === "ADMIN") {
     content = `
-      <h4 class="font-medium text-gray-900">1. Gestión de Usuarios</h4>
-      <p>En la pestaña <strong>Administrador</strong>, puedes crear, editar y eliminar usuarios del sistema.</p>
-      <h4 class="font-medium text-gray-900 mt-4">2. Supervisión Global</h4>
-      <p>Tienes acceso a todas las métricas y estados de tareas de todos los proyectos.</p>
-      <h4 class="font-medium text-gray-900 mt-4">3. Configuración del Sistema</h4>
-      <p>Ajusta parámetros globales y gestiona las integraciones.</p>
+      <div class="space-y-6">
+        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+          <h4 class="font-bold text-emerald-800 text-lg mb-2">🛡️ Centro de Comando - Admin</h4>
+          <p class="text-emerald-700 text-sm">Tienes el control total sobre usuarios, configuraciones y la salud del sistema.</p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">1</span>
+            Gestión de Usuarios
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            Crea cuentas para nuevos líderes o diseñadores. Puedes editar roles o eliminar accesos instantáneamente si es necesario.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">2</span>
+            Visión Global
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            Accede a todas las tareas de todos los proyectos. Nada se escapa de tu vista. Puedes intervenir en cualquier validación o reasignación.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <span class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs">3</span>
+            Configuración del Sistema
+          </h4>
+          <p class="text-gray-600 text-sm ml-8">
+            Ajusta la "Creatividad de la IA" para las validaciones, gestiona las claves de API y monitorea los logs del servidor.
+          </p>
+        </div>
+      </div>
     `;
   } else {
-    content = `<p>No hay una guía específica disponible para tu rol actual (${role}).</p>`;
+    content = `
+      <div class="text-center py-8">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="user-x" class="w-8 h-8 text-gray-400"></i>
+        </div>
+        <h3 class="font-bold text-gray-900">Rol no identificado</h3>
+        <p class="text-gray-500 text-sm mt-2">No tenemos una guía específica para tu rol actual (${role}).</p>
+      </div>
+    `;
   }
 
   $("guideContent").innerHTML = content;
