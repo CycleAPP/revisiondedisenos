@@ -1800,8 +1800,17 @@ window.showUserGuide = () => {
       <h4 class="font-medium text-gray-900 mt-4">3. Monitorea métricas</h4>
       <p>Usa la sección de métricas para ver el rendimiento de tu equipo y detectar cuellos de botella.</p>
     `;
+  } else if (role === "ADMIN") {
+    content = `
+      <h4 class="font-medium text-gray-900">1. Gestión de Usuarios</h4>
+      <p>En la pestaña <strong>Administrador</strong>, puedes crear, editar y eliminar usuarios del sistema.</p>
+      <h4 class="font-medium text-gray-900 mt-4">2. Supervisión Global</h4>
+      <p>Tienes acceso a todas las métricas y estados de tareas de todos los proyectos.</p>
+      <h4 class="font-medium text-gray-900 mt-4">3. Configuración del Sistema</h4>
+      <p>Ajusta parámetros globales y gestiona las integraciones.</p>
+    `;
   } else {
-    content = `<p>Inicia sesión para ver la guía personalizada para tu rol.</p>`;
+    content = `<p>No hay una guía específica disponible para tu rol actual (${role}).</p>`;
   }
 
   $("guideContent").innerHTML = content;
