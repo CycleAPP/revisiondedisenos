@@ -1064,6 +1064,7 @@ function renderAssignedTable() {
 
     return [
       a.modelKey,
+      a.projectType || "-", // Retailer column
       a.title,
       { html: true, content: assigneeText },
       {
@@ -1076,7 +1077,7 @@ function renderAssignedTable() {
   if (rows.length === 0) {
     box.innerHTML = '<div class="text-sm text-gray-400 italic p-4">No se encontraron tareas.</div>';
   } else {
-    box.innerHTML = renderTable(["SKU", "Título", "Asignado a", "Acción"], rows);
+    box.innerHTML = renderTable(["SKU", "Retailer", "Título", "Asignado a", "Acción"], rows);
   }
   if (window.lucide) lucide.createIcons();
 }
