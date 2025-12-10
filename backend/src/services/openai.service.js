@@ -104,9 +104,14 @@ ${text}
    - **REJECTED**: al menos un requerimiento TEXT en MISSING.
    - **WARNING**: dudas parciales pero sin faltantes claros.
 
-5) EXTRAER PRODUCTO: itemDescription, bulbsCount, lightColor, wireColor, powerSupply, upc y categorizaciones detectadas.
+5) VERIFICACIÓN ORTOGRÁFICA:
+   - Revisa la ortografía y gramática de TODO el texto.
+   - Ignora nombres propios, códigos técnicos o abreviaturas.
+   - Reporta errores claros.
 
-6) DEVUELVE SOLO ESTE JSON:
+6) EXTRAER PRODUCTO: itemDescription, bulbsCount, lightColor, wireColor, powerSupply, upc y categorizaciones detectadas.
+
+7) DEVUELVE SOLO ESTE JSON:
 {
   "product": {
     "itemDescription": { "value": "string", "box": null },
@@ -145,6 +150,10 @@ ${text}
     ],
     "overallStatus": "APPROVED|REJECTED|WARNING",
     "missing": ["string"]
+  },
+  "spelling": {
+    "hasErrors": boolean,
+    "errors": ["lista de errores encontrados"]
   },
   "claims": [{ "text": "string", "box": null }],
   "warnings": { "text": "string", "box": null },

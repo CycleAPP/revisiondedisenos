@@ -119,6 +119,20 @@ function normalizeOcrOutput(raw) {
   const globalValidation = raw?.globalValidation || deriveGlobalValidation(raw);
   const rawText = raw?.rawText || raw?.text || "";
 
+  // Check for spelling errors
+  const spelling = raw?.spelling || { hasErrors: false, errors: [] };
+  if (spelling.hasErrors && spelling.errors.length > 0) {
+    globalValidation.overallStatus = "REJECTED";
+    globalValidation.requirements.push({
+      requirement: "Ortografía y Gramática",
+      type: "TEXT",
+      status: "MISSING", // Fail status
+      foundText: spelling.errors,
+      source: "spelling"
+    });
+    globalValidation.missing.push(`Errores de ortografía detectados: ${spelling.errors.join(", ")}`);
+  }
+
   return {
     rawText,
     ocrText: rawText,
@@ -152,6 +166,7 @@ function normalizeOcrOutput(raw) {
     validation: raw?.validation || null,
     contentValidation: raw?.contentValidation || null,
     globalValidation,
+    spelling, // Pass spelling details to frontend
     _rawBoxes: {
       claims: Array.isArray(raw?.claims) ? raw.claims.map(c => c.box) : [],
     }
@@ -202,7 +217,12 @@ export async function analyzeDesignWithAI(localPath, expected = {}, organization
    - Ejemplo: Si se pide "Logo FSC y Reciclable", es válido si encuentras el logo FSC y el símbolo/texto de reciclaje, aunque no diga literalmente "Logo" o "y".
    - Ejemplo: Si se pide "Hecho en China", es válido "Made in China".
    - **EXCEPCIÓN:** Si el requerimiento menciona "Alimentación", "Power Supply", "Volts", "Watts", "Hz" o "Año", márcalo SIEMPRE como status "OK" (Validado externamente).
-   - Si el texto está presente (o su equivalente visual/semántico), marca status "OK". Si no, "MISSING".
+    - Si el texto está presente (o su equivalente visual/semántico), marca status "OK". Si no, "MISSING".
+
+3. **VERIFICACIÓN ORTOGRÁFICA:**
+   - Revisa la ortografía y gramática de TODO el texto visible en el diseño (Español e Inglés).
+   - Ignora nombres propios de marcas, códigos técnicos (UPC, NOM), o abreviaturas estándar.
+   - Si encuentras errores claros (ej: "Bateria" sin tilde, "Conection" en vez de "Connection"), repórtalos.
 
 **LISTA DE TEXTOS OBLIGATORIOS A VERIFICAR:**
 ${mandatoryTexts.map(t => `- ${t}`).join('\n')}
@@ -224,6 +244,10 @@ ${customRules ? `**REGLAS PERSONALIZADAS:**\n${customRules}` : ""}
       "${mandatoryTexts[0] || "Ejemplo"}": { "type": "TEXT", "status": "OK|MISSING", "foundText": "texto encontrado" }
       // ... repetir para cada texto obligatorio
     }
+  },
+  "spelling": {
+    "hasErrors": boolean,
+    "errors": ["lista de errores encontrados con contexto"]
   },
   "faces": { 
     "frente": {"texts": ["string"], "box": [...]}, 
