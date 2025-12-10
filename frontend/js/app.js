@@ -126,11 +126,11 @@ function renderTop() {
   $("userBadge").innerHTML = session.token ? ('<b>' + (session.name || session.email) + '</b>') : '<span>No autenticado</span>';
   qs('[data-tab="tab-designer"]').classList.toggle("hidden", session.role !== "DESIGNER");
   qs('[data-tab="tab-studio"]').classList.toggle("hidden", session.role !== "DESIGNER");
-  qs('[data-tab="tab-leader"]').classList.toggle("hidden", session.role !== "LEADER");
+  qs('[data-tab="tab-leader"]').classList.toggle("hidden", session.role !== "LEADER" && session.role !== "ADMIN");
   qs('[data-tab="tab-templates"]').classList.toggle("hidden", session.role !== "LEADER" && session.role !== "ADMIN");
-  qs('[data-tab="tab-admin"]').classList.toggle("hidden", session.role !== "ADMIN");
+  qs('[data-tab="tab-admin"]').classList.toggle("hidden", session.role !== "LEADER" && session.role !== "ADMIN");
   qs('[data-tab="tab-designs"]').classList.toggle("hidden", session.role !== "LEADER" && session.role !== "ADMIN");
-  qs('[data-tab="tab-files"]').classList.toggle("hidden", session.role !== "ADMIN");
+  qs('[data-tab="tab-files"]').classList.toggle("hidden", session.role !== "LEADER" && session.role !== "ADMIN");
   $("btnLogout").classList.toggle("hidden", !session.token);
   if (window.lucide) lucide.createIcons();
 }
@@ -1141,24 +1141,29 @@ async function loadDesignersSelect() {
 }
 
 async function loadPackagingTypes() {
-  try {
-    const r = await fetch(API + "/api/templates", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
-    const j = await r.json();
-    const sel = $("taskPackaging");
-    if (!sel) return;
+  // Lista predefinida de tipos de empaque (deben coincidir con los nombres de esqueletos que sube la líder)
+  const PACKAGING_TYPES = [
+    "Caja estandar",
+    "Caja con ventana frontal",
+    "Caja con ventana lateral",
+    "Caja con ventana y carrete",
+    "Carrete",
+    "Carrete con fajilla",
+    "Bolsa rigida",
+    "Bolsa con hand tag",
+    "Hand tag",
+    "Caja con ventana y hand tag",
+    "Exhibidor estrella",
+    "Exhibidor figuras",
+    "Caja con ventana y try me",
+    "Etiqueta"
+  ];
 
-    if (r.ok && j.ok) {
-      const templates = j.data || [];
-      // Group by type or just list names? User asked for "skeletons uploaded".
-      // Let's list unique names or types. Usually templates have a name like "Full Color Box".
-      // We'll use the template name as the value.
+  const sel = $("taskPackaging");
+  if (!sel) return;
 
-      const options = templates.map(t => `<option value="${t.name}">${t.name}</option>`).join("");
-      sel.innerHTML = '<option value="" disabled selected>Selecciona Empaque</option>' + options + '<option value="OTHER">Otro (Manual)</option>';
-    } else {
-      sel.innerHTML = '<option value="">Error cargando</option>';
-    }
-  } catch (e) { console.error("Error loading packaging types", e); }
+  const options = PACKAGING_TYPES.map(t => `<option value="${t}">${t}</option>`).join("");
+  sel.innerHTML = '<option value="" disabled selected>Selecciona Empaque</option>' + options + '<option value="OTHER">Otro (Manual)</option>';
 }
 
 // Event listeners for refresh buttons
