@@ -309,7 +309,7 @@ function renderValidationResult(result) {
     });
     parts.push('</ul></div>');
     if (result.globalValidation.missing?.length) {
-      parts.push('<div class="text-[11px] text-amber-300 mb-2"><b>Faltantes:</b> ' + escapeHTML(result.globalValidation.missing.join(", ")) + '</div>');
+      parts.push('<div class="text-[11px] text-orange-600 mb-2"><b>Faltantes:</b> ' + escapeHTML(result.globalValidation.missing.join(", ")) + '</div>');
     }
   }
 
@@ -324,14 +324,14 @@ function renderValidationResult(result) {
   if (result.claims) {
     parts.push('<div class="text-xs mb-2"><b>Claims detectados:</b> ' + escapeHTML((result.claims.detectados || []).join(", ") || "-") + '</div>');
     if (result.claims.faltantes?.length) {
-      parts.push('<div class="text-xs mb-2 text-amber-300"><b>Claims faltantes:</b> ' + escapeHTML(result.claims.faltantes.join(", ")) + '</div>');
+      parts.push('<div class="text-xs mb-2 text-orange-600"><b>Claims faltantes:</b> ' + escapeHTML(result.claims.faltantes.join(", ")) + '</div>');
     }
   }
 
   if (result.globalSummary) {
     parts.push('<div class="text-xs mt-2"><b>Resumen global:</b> ' + escapeHTML(result.globalSummary.status || "-") + '</div>');
     if (result.globalSummary.missing?.length) {
-      parts.push('<div class="text-[11px] text-amber-300"><b>Faltantes:</b> ' + escapeHTML(result.globalSummary.missing.join(", ")) + '</div>');
+      parts.push('<div class="text-[11px] text-orange-600"><b>Faltantes:</b> ' + escapeHTML(result.globalSummary.missing.join(", ")) + '</div>');
     }
     if (result.globalSummary.notes?.length) {
       parts.push('<div class="text-[10px] opacity-70">' + escapeHTML(result.globalSummary.notes.join(" · ")) + '</div>');
