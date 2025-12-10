@@ -2,7 +2,10 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 
 // Configure Helmet for secure HTTP headers
-export const securityHeaders = helmet();
+// Disable CSP for now to allow external scripts (unpkg, jsdelivr)
+export const securityHeaders = helmet({
+    contentSecurityPolicy: false,
+});
 
 // General API Rate Limiter
 // 100 requests per 15 minutes per IP
