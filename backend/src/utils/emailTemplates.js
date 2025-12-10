@@ -1,9 +1,9 @@
 export const getEmailTemplate = ({ title, message, items = [], actionLink, actionText }) => {
   const itemsHtml = items.length > 0
     ? `<div style="margin: 24px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white;">
-        <h3 style="margin: 0 0 12px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9;">📋 Tareas Asignadas</h3>
+        <h3 style="margin: 0 0 12px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9;">Tareas Asignadas</h3>
         <ul style="padding-left: 0; margin: 0; list-style: none;">
-          ${items.map(item => `<li style="margin-bottom: 10px; padding: 12px 16px; background: rgba(255,255,255,0.15); border-radius: 8px; backdrop-filter: blur(10px);">✨ ${item}</li>`).join('')}
+          ${items.map(item => `<li style="margin-bottom: 10px; padding: 12px 16px; background: rgba(255,255,255,0.15); border-radius: 8px; backdrop-filter: blur(10px);">${item}</li>`).join('')}
         </ul>
       </div>`
     : '';
@@ -27,7 +27,7 @@ export const getEmailTemplate = ({ title, message, items = [], actionLink, actio
     <!-- Header with gradient -->
     <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 40px 30px; text-align: center;">
       <div style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 12px 24px; border-radius: 50px; margin-bottom: 16px;">
-        <span style="color: white; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">💎 LUMINA</span>
+        <span style="color: white; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">LUMINA</span>
       </div>
       <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 300; letter-spacing: 1px;">Diseño de Empaque</h1>
     </div>
@@ -45,7 +45,7 @@ export const getEmailTemplate = ({ title, message, items = [], actionLink, actio
     <!-- Footer -->
     <div style="background: #fafafa; padding: 24px 30px; text-align: center; border-top: 1px solid #eee;">
       <p style="margin: 0; font-size: 12px; color: #999;">
-        🚀 Sistema de Gestión de Diseños | Lumina Packaging
+        Sistema de Gestión de Diseños | Lumina Packaging
       </p>
       <p style="margin: 8px 0 0 0; font-size: 11px; color: #bbb;">
         Este es un mensaje automático, por favor no responder.
