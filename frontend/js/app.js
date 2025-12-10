@@ -1179,15 +1179,19 @@ if ($("taskModelKey")) {
       const dupRes = await fetch(API + "/api/assignments/assigned", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
       const dupJson = await dupRes.json();
       if (dupRes.ok && dupJson.ok) {
-        const existing = (dupJson.data || []).find(t => t.modelKey.toLowerCase() === key.toLowerCase());
-        if (existing) {
-          status.textContent = `¡Ya existe! (ID: ${existing.id})`;
-          status.className = "label-text-alt text-red-500 font-bold";
-          toast(`El modelo ${key} ya tiene una tarea creada.`, "warning");
-          // Optional: prevent creation or just warn? User asked for warning.
-          // Let's continue to allow them to see the catalog info but keep the warning visible?
-          // Or stop? Let's stop auto-fill to force them to notice.
-          return;
+        // Find ALL tasks with this SKU
+        const existingTasks = (dupJson.data || []).filter(t => t.modelKey.toLowerCase() === key.toLowerCase());
+
+        if (existingTasks.length > 0) {
+          const retailers = existingTasks.map(t => t.projectType || "Sin Retailer").join(", ");
+          status.textContent = `⚠ Existe para: ${retailers}`;
+          status.className = "label-text-alt text-orange-500 font-bold";
+          toast(`El modelo ${key} ya existe para: ${retailers}`, "info");
+
+          // Store existing retailers for this SKU to check later
+          window.existingRetailersForSku = existingTasks.map(t => (t.projectType || "").toLowerCase());
+        } else {
+          window.existingRetailersForSku = [];
         }
       }
     } catch (e) { console.error("Error checking duplicates", e); }
@@ -1272,6 +1276,33 @@ if ($("taskModelKey")) {
     $("taskDesc").classList.remove("bg-gray-50");
     $("taskTitle").focus();
   };
+}
+
+// Check duplicate on Retailer change
+if ($("taskRetailer")) {
+  $("taskRetailer").addEventListener("change", (e) => {
+    const selected = e.target.value.toLowerCase();
+    const existing = window.existingRetailersForSku || [];
+    const btn = $("btnCreateTask");
+    const status = $("catalogStatus");
+
+    if (existing.includes(selected)) {
+      toast(`Error: Ya existe una tarea para este SKU y Retailer (${e.target.value})`, "error");
+      if (btn) btn.disabled = true;
+      if (status) {
+        status.textContent = "❌ Combinación SKU+Retailer ya existe";
+        status.className = "label-text-alt text-red-600 font-bold";
+      }
+    } else {
+      if (btn) btn.disabled = false;
+      // Restore status text if it was showing duplicate warning? 
+      // Maybe just leave it as "Existe para: ..." or "Encontrado"
+      if (status && status.textContent.startsWith("❌")) {
+        status.textContent = "⚠ Existe para otros retailers"; // Fallback
+        status.className = "label-text-alt text-orange-500 font-bold";
+      }
+    }
+  });
 }
 
 // --- Improved Delegation Logic ---
