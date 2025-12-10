@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import prisma from "../config/prisma.js";
 
 export const listUsersService = async () => {
@@ -45,8 +46,9 @@ export const deleteUserService = async (id) => {
   });
 };
 export const resetPasswordService = async (id, password) => {
+  const hashedPassword = await bcrypt.hash(password, 10);
   return prisma.user.update({
     where: { id },
-    data: { password } // In a real app, hash this! But for this demo/local, plain text is used as per existing auth.
+    data: { password: hashedPassword }
   });
 };

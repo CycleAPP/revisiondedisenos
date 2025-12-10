@@ -35,13 +35,13 @@ export const delegateAssignmentService = async ({ assignmentIds, assigneeId }) =
         actionText: "Ir al Dashboard"
       });
 
-      await sendEmail({
+      sendEmail({
         to: assignee.email,
         subject: `Nueva Asignación (${assignments.length} tareas) - Diseño Empaque`,
         html
-      });
+      }).catch(e => console.error("Error sending email:", e));
     }
-  } catch (e) { console.error("Error sending email:", e); }
+  } catch (e) { console.error("Error preparing email:", e); }
 
   return updated;
 };
