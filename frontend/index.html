@@ -498,7 +498,12 @@
                 <!-- Hidden fields, auto-filled -->
                 <div id="autoFilledFields" class="space-y-3 hidden">
                   <input id="taskTitle" class="input bg-gray-50" placeholder="Título del proyecto" readonly />
-                  <input id="taskPackaging" class="input bg-gray-50" placeholder="Tipo de empaque" readonly />
+
+                  <!-- Packaging Dropdown (Auto-filled or Manual) -->
+                  <select id="taskPackaging" class="input bg-gray-50" disabled>
+                    <option value="" disabled selected>Cargando empaques...</option>
+                  </select>
+
                   <textarea id="taskDesc" class="input min-h-[80px] bg-gray-50" placeholder="Descripción detallada..."
                     readonly></textarea>
                   <div class="text-xs text-blue-500 cursor-pointer hover:underline" id="btnEditManual">Editar

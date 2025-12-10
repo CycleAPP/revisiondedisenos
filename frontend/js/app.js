@@ -1118,6 +1118,48 @@ async function loadLeaderRejected() {
   }
 }
 
+// --- New Helper Functions ---
+
+async function loadDesignersSelect() {
+  try {
+    const r = await fetch(API + "/api/users", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      const designers = (j.data || []).filter(u => u.role === "DESIGNER");
+      const options = designers.map(d => `<option value="${d.id}">${d.name}</option>`).join("");
+
+      // Update Delegation Select
+      const sel = $("selectDesigner");
+      if (sel) sel.innerHTML = '<option value="" disabled selected>Selecciona Diseñador</option>' + options;
+
+      // Update Metrics Select
+      const met = $("metricsDesignerSelect");
+      if (met) met.innerHTML = '<option value="" disabled selected>Selecciona Diseñador</option>' + options;
+    }
+  } catch (e) { console.error("Error loading designers", e); }
+}
+
+async function loadPackagingTypes() {
+  try {
+    const r = await fetch(API + "/api/templates", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
+    const j = await r.json();
+    const sel = $("taskPackaging");
+    if (!sel) return;
+
+    if (r.ok && j.ok) {
+      const templates = j.data || [];
+      // Group by type or just list names? User asked for "skeletons uploaded".
+      // Let's list unique names or types. Usually templates have a name like "Full Color Box".
+      // We'll use the template name as the value.
+
+      const options = templates.map(t => `<option value="${t.name}">${t.name}</option>`).join("");
+      sel.innerHTML = '<option value="" disabled selected>Selecciona Empaque</option>' + options + '<option value="OTHER">Otro (Manual)</option>';
+    } else {
+      sel.innerHTML = '<option value="">Error cargando</option>';
+    }
+  } catch (e) { console.error("Error loading packaging types", e); }
+}
+
 // Event listeners for refresh buttons
 $("btnLeaderAssigned").onclick = () => loadLeaderAssigned(); // Pass no args to reset filter?
 $("btnLeaderRejected").onclick = loadLeaderRejected;
@@ -1165,7 +1207,32 @@ if ($("taskModelKey")) {
         const row = j.row;
         // Mapping based on tableConvert.com_ct419w.json structure
         $("taskTitle").value = row["Descripción"] || row["Description"] || `Diseño para ${key}`;
-        $("taskPackaging").value = row["Empaque"] || row["Packaging"] || "";
+
+        // Packaging Logic
+        const packValue = row["Empaque"] || row["Packaging"] || "";
+        const packSel = $("taskPackaging");
+
+        // Try to select if exists
+        let foundOption = false;
+        for (let i = 0; i < packSel.options.length; i++) {
+          if (packSel.options[i].value === packValue) {
+            packSel.selectedIndex = i;
+            foundOption = true;
+            break;
+          }
+        }
+
+        // If not found, add it temporarily or select "OTHER" and maybe put it in description?
+        // Or just add it as an option.
+        if (!foundOption && packValue) {
+          const opt = document.createElement("option");
+          opt.value = packValue;
+          opt.textContent = packValue + " (Del Excel)";
+          opt.selected = true;
+          packSel.appendChild(opt);
+        } else if (!packValue) {
+          packSel.value = ""; // Reset
+        }
 
         // Construct description from other fields
         const desc = [
@@ -1183,10 +1250,10 @@ if ($("taskModelKey")) {
         status.className = "label-text-alt text-orange-500";
         $("autoFilledFields").classList.remove("hidden");
         $("taskTitle").readOnly = false;
-        $("taskPackaging").readOnly = false;
+        $("taskPackaging").disabled = false; // Enable dropdown
+        $("taskPackaging").classList.remove("bg-gray-50");
         $("taskDesc").readOnly = false;
         $("taskTitle").classList.remove("bg-gray-50");
-        $("taskPackaging").classList.remove("bg-gray-50");
         $("taskDesc").classList.remove("bg-gray-50");
       }
     } catch (e) {
@@ -1198,10 +1265,10 @@ if ($("taskModelKey")) {
 
   $("btnEditManual").onclick = () => {
     $("taskTitle").readOnly = false;
-    $("taskPackaging").readOnly = false;
+    $("taskPackaging").disabled = false; // Enable dropdown
+    $("taskPackaging").classList.remove("bg-gray-50");
     $("taskDesc").readOnly = false;
     $("taskTitle").classList.remove("bg-gray-50");
-    $("taskPackaging").classList.remove("bg-gray-50");
     $("taskDesc").classList.remove("bg-gray-50");
     $("taskTitle").focus();
   };
@@ -1768,6 +1835,8 @@ async function loadDashboard() {
     loadUnassignedTasks();
     loadLeaderAssigned();
     loadLeaderRejected();
+    loadDesignersSelect(); // Fix: Populate designer dropdowns
+    loadPackagingTypes();  // Fix: Populate packaging dropdown
   }
 }
 
