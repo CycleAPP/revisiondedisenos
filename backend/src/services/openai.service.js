@@ -36,20 +36,26 @@ try {
 
 let openaiInstance = null;
 
-export const getOpenAIClient = () => {
+
+export function getOpenAIClient() {
   if (openaiInstance) return openaiInstance;
 
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("OpenAI API Key not configured.");
   }
 
-  openaiInstance = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    timeout: 60000, // 60 seconds timeout
-  });
+  try {
+    openaiInstance = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      timeout: 60000, // 60 seconds timeout
+    });
+  } catch (e) {
+    console.error("[openai] Error creating OpenAI client:", e);
+    throw e;
+  }
 
   return openaiInstance;
-};
+}
 
 /**
  * Parses raw text using OpenAI to extract structured data and a GLOBAL (no faces) validation.
