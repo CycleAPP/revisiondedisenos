@@ -1206,14 +1206,13 @@ if ($("taskModelKey")) {
         status.className = "label-text-alt text-red-600 font-bold";
         if (btn) btn.disabled = true;
         toast(`Error: Ya existe tarea para ${key} y ${$("taskRetailer").value}`, "error");
-      } else if (window.existingRetailersForSku.length > 0) {
+      } else if (existingList.length > 0) {
         // Just warning
         if (btn) btn.disabled = false;
       } else {
         // No duplicates
         if (btn) btn.disabled = false;
       }
-
     } catch (e) { console.error("Error checking duplicates", e); }
 
     // 2. Fetch Catalog Info
