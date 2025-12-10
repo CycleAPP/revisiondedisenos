@@ -113,11 +113,11 @@ export const updateReviewStatusService = async ({ id, status, notes, leaderId })
                 actionText: "Ver Detalles"
             });
 
-            await sendEmail({
+            sendEmail({
                 to: assignment.assignee.email,
                 subject: `${subject} - ${assignment.modelKey}`,
                 html
-            });
+            }).catch(e => console.error("Error sending email (async):", e));
         }
     } catch (e) { console.error("Error sending email:", e); }
 
