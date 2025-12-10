@@ -11,18 +11,21 @@ const createTransporter = () => {
 
     return nodemailer.createTransport({
         host: "smtp.gmail.com",
-        port: 465,
-        secure: true, // use SSL
+        port: 587,
+        secure: false, // use STARTTLS
         auth: {
             user: process.env.SMTP_EMAIL,
             pass: process.env.SMTP_PASSWORD,
         },
         // Add timeouts to prevent hanging
-        connectionTimeout: 20000, // 20 seconds
-        greetingTimeout: 20000,
-        socketTimeout: 20000,
+        connectionTimeout: 30000, // 30 seconds
+        greetingTimeout: 30000,
+        socketTimeout: 30000,
         // Force IPv4 to avoid IPv6 timeout issues
-        family: 4
+        family: 4,
+        tls: {
+            rejectUnauthorized: false
+        }
     });
 };
 
