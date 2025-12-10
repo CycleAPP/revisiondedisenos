@@ -67,6 +67,7 @@ const mappingsRoutes = await mountOrDummy(`${routesBase}/mappings.routes.js`);
 const assistantRoutes = await mountOrDummy(`${routesBase}/assistant.routes.js`);
 const metricsRoutes = await mountOrDummy(`${routesBase}/metrics.routes.js`);
 const reviewRoutes = await mountOrDummy(`${routesBase}/review.routes.js`);
+const settingsRoutes = await mountOrDummy(`${routesBase}/settings.routes.js`);
 
 // Prefijo de API
 app.use("/api/auth", authRoutes);
@@ -80,6 +81,7 @@ app.use("/api/mappings", mappingsRoutes);
 app.use("/api/assist", assistantRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/review", reviewRoutes);
+app.use("/api/settings", settingsRoutes);
 app.use("/api/templates", await mountOrDummy(`${routesBase}/templates.routes.js`));
 
 /* ------------------ Estáticos (uploads + frontend) ------------------ */

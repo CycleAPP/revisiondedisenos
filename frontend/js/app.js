@@ -1453,22 +1453,45 @@ function drawChart(id, title, labels, data, colors) {
   /* -------------------------- Settings -------------------------- */
   const settingsKey = () => "settings_" + (session.user?.id || "guest");
 
-  function loadSettings() {
+  async function loadSettings() {
+    // Load from API
+    try {
+      const r = await fetch(API + "/api/settings/ai-strictness", { headers: { Authorization: "Bearer " + session.token } });
+      const j = await r.json();
+      if (r.ok && j.ok) {
+        if ($("aiTempSlider")) {
+          $("aiTempSlider").value = j.strictness || 5;
+          updateTempLabel();
+        }
+      }
+    } catch (e) { console.error("Error loading settings", e); }
+
     const saved = JSON.parse(localStorage.getItem(settingsKey()) || "{}");
-    if ($("aiTempSlider")) {
-      $("aiTempSlider").value = (saved.aiTemp || 0.2) * 10; // 0.2 -> 2
-      updateTempLabel();
-    }
     if ($("emailNotifToggle")) {
       $("emailNotifToggle").checked = !!saved.emailNotif;
     }
   }
 
-  function saveSettings() {
-    const temp = Number($("aiTempSlider").value) / 10; // 5 -> 0.5
+  async function saveSettings() {
+    const strictness = Number($("aiTempSlider").value);
+
+    // Save to API
+    try {
+      const r = await fetch(API + "/api/settings/ai-strictness", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
+        body: JSON.stringify({ strictness })
+      });
+      const j = await r.json();
+      if (r.ok && j.ok) {
+        toast("Nivel de estrictez guardado: " + strictness, "success");
+      } else {
+        toast("Error guardando estrictez", "error");
+      }
+    } catch (e) { toast("Error de red", "error"); }
+
     const notif = $("emailNotifToggle").checked;
-    localStorage.setItem(settingsKey(), JSON.stringify({ aiTemp: temp, emailNotif: notif }));
-    toast("Preferencias guardadas", "success");
+    localStorage.setItem(settingsKey(), JSON.stringify({ emailNotif: notif }));
   }
 
   if ($("aiTempSlider")) {
@@ -1481,11 +1504,18 @@ function drawChart(id, title, labels, data, colors) {
 
   function updateTempLabel() {
     const val = Number($("aiTempSlider").value);
-    const temp = val / 10;
     let text = "Balanceado";
-    if (temp < 0.3) text = "Estricto";
-    if (temp > 0.7) text = "Creativo";
-    $("aiTempLabel").textContent = `${text} (${temp})`;
+    if (val <= 3) text = "Relax";
+    if (val >= 8) text = "Muy Estricto";
+    $("aiTempLabel").textContent = `${text} (${val})`;
+
+    // Disable for non-leaders
+    if (session.role !== "LEADER" && session.role !== "ADMIN") {
+      $("aiTempSlider").disabled = true;
+      $("aiTempLabel").textContent += " (Solo Líder)";
+    } else {
+      $("aiTempSlider").disabled = false;
+    }
   }
 
   // Load settings on startup if logged in
