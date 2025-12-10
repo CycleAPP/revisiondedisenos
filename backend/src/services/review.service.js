@@ -33,6 +33,14 @@ export const listReviewsService = async ({ userId, role }) => {
             where: { modelKey: a.modelKey }
         });
 
+        let parsedDetails = {};
+        try {
+            parsedDetails = validation && validation.details ? JSON.parse(validation.details) : {};
+        } catch (e) {
+            console.error("Error parsing validation details:", e);
+            parsedDetails = { error: "Invalid JSON" };
+        }
+
         return {
             id: a.id, // Use assignment ID as review ID
             assignmentId: a.id,
@@ -44,13 +52,6 @@ export const listReviewsService = async ({ userId, role }) => {
             designerEmail: a.assignee?.email || "",
             fileUrl: file ? file.path : null,
             fileName: file ? file.original : null,
-            let parsedDetails = {};
-            try {
-                parsedDetails = validation && validation.details ? JSON.parse(validation.details) : {};
-            } catch(e) {
-                console.error("Error parsing validation details:", e);
-                parsedDetails = { error: "Invalid JSON" };
-            }
             details: parsedDetails,
             createdAt: a.createdAt,
             updatedAt: a.updatedAt
