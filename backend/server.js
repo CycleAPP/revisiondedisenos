@@ -37,9 +37,9 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rate Limiting
-app.use("/api", apiLimiter);
-app.use("/api/auth", authLimiter);
+// Rate Limiting - DISABLED BY USER REQUEST
+// app.use("/api", apiLimiter);
+// app.use("/api/auth", authLimiter);
 
 /* ------------------ Montaje de rutas con fallback ------------------ */
 /**
