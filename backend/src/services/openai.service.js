@@ -32,9 +32,11 @@ try {
   console.error("[openai] Failed to load validation rules:", e);
 }
 
+
+
 let openaiInstance = null;
 
-function getOpenAIClient() {
+export const getOpenAIClient = () => {
   if (openaiInstance) return openaiInstance;
 
   if (!process.env.OPENAI_API_KEY) {
@@ -47,7 +49,7 @@ function getOpenAIClient() {
   });
 
   return openaiInstance;
-}
+};
 
 /**
  * Parses raw text using OpenAI to extract structured data and a GLOBAL (no faces) validation.
@@ -55,8 +57,11 @@ function getOpenAIClient() {
  * @param {string} hints - Optional hints for the extraction.
  * @returns {Promise<Object>} - The parsed JSON object.
  */
+
 export async function parseTextWithOpenAI(text, hints = "") {
+  console.log("[openai] parseTextWithOpenAI called");
   const openai = getOpenAIClient();
+  console.log("[openai] Client obtained");
 
   const prompt = `
 **ROL:** Verificador experto de artes de empaque. No asumas caras; el OCR es global.
@@ -209,3 +214,13 @@ export async function analyzeImageWithOpenAI(filePath, promptText) {
   }
 }
 
+
+/**
+ * Fetches custom validation rules for a specific organization.
+ * @param {string} organizationId - The organization ID.
+ * @returns {Promise<string>} - The custom rules text.
+ */
+export async function getCustomRules(organizationId) {
+  // Placeholder implementation
+  return "";
+}

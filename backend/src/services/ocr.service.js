@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { analyzePdf } from "./azure.service.js";
-import { parseTextWithOpenAI, analyzeImageWithOpenAI } from "./openai.service.js";
+import { parseTextWithOpenAI, analyzeImageWithOpenAI, getCustomRules } from "./openai.service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -158,7 +158,7 @@ function normalizeOcrOutput(raw) {
   };
 }
 
-export async function analyzeDesignWithAI(localPath, expected = {}) {
+export async function analyzeDesignWithAI(localPath, expected = {}, organizationId = null) {
   if (!fs.existsSync(localPath)) {
     return { error: true, status: "OCR_ERROR_FILE_NOT_FOUND", message: "Archivo no encontrado" };
   }
@@ -172,6 +172,9 @@ export async function analyzeDesignWithAI(localPath, expected = {}) {
   if (stat.size > MAX_FILE_BYTES) {
     return { error: true, status: "OCR_ERROR_FILE_TOO_LARGE", message: `Archivo demasiado grande (${Math.round(stat.size / 1024 / 1024)}MB > 20MB)` };
   }
+
+  // Fetch custom rules for this organization (if any)
+  const customRules = await getCustomRules(organizationId);
 
   // Prepare hints for the AI
   const mandatoryTexts = (expected?.globalRequirements || [])
@@ -203,6 +206,8 @@ export async function analyzeDesignWithAI(localPath, expected = {}) {
 
 **LISTA DE TEXTOS OBLIGATORIOS A VERIFICAR:**
 ${mandatoryTexts.map(t => `- ${t}`).join('\n')}
+
+${customRules ? `**REGLAS PERSONALIZADAS:**\n${customRules}` : ""}
 
 **FORMATO DE SALIDA (JSON PURO):**
 {
@@ -240,7 +245,7 @@ ${mandatoryTexts.map(t => `- ${t}`).join('\n')}
         throw new Error("Azure no pudo extraer texto del PDF.");
       }
       console.log(`[ocr] Azure extracted ${rawText.length} chars. Sending to OpenAI...`);
-      parsed = await parseTextWithOpenAI(rawText, hints);
+      parsed = await parseTextWithOpenAI(rawText, hints, organizationId);
       parsed.rawText = rawText; // Ensure raw text is preserved
 
     } else {
