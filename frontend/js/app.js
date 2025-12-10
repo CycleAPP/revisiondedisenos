@@ -938,19 +938,7 @@ $("btnCreateTask").onclick = async () => {
   finally { spinner($("btnCreateTask"), false); }
 };
 
-$("btnRefreshDelegation").onclick = async () => {
-  if (!session.token) return toast("Inicia sesión", "error");
-  const [aRes, uRes] = await Promise.all([
-    fetch(API + "/api/assignments/me", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" }),
-    fetch(API + "/api/users", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" })
-  ]);
-  const a = await aRes.json(); const u = await uRes.json();
-  $("selectAssignment").innerHTML = (a.data || []).map(x => '<option value="' + x.id + '">#' + x.id + ' — ' + x.title + ' (' + (x.projectType || x.modelKey) + ')</option>').join("") || '<option value="">Sin tareas</option>';
-  const designers = (u.data || []).filter(z => z.role === "DESIGNER");
-  $("selectDesigner").innerHTML = designers.map(d => '<option value="' + d.id + '">' + d.name + ' (' + d.email + ')</option>').join("") || '<option value="">Sin diseñadores</option>';
-  $("metricsDesignerSelect").innerHTML = designers.map(d => '<option value="' + d.id + '">' + d.name + '</option>').join("");
-  toast("Listas actualizadas", "success");
-};
+// Legacy btnRefreshDelegation removed (replaced by new logic)
 
 $("btnDelegate").onclick = async () => {
   if (!session.token) return toast("Inicia sesión", "error");
@@ -1753,6 +1741,12 @@ $("btnDashRefresh").onclick = () => { loadDashboard(); };
 async function loadDashboard() {
   refreshRolePanels();
   await loadDashboardCharts();
+  // Refresh delegation lists if Leader
+  if (session.role === "LEADER" || session.role === "ADMIN") {
+    loadUnassignedTasks();
+    loadLeaderAssigned();
+    loadLeaderRejected();
+  }
 }
 
 /* -------------------------- Metrics & Designs -------------------------- */
