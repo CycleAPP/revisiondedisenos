@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import mountOrDummy from "./src/utils/mountOrDummy.js";
+import { securityHeaders, apiLimiter, authLimiter } from "./src/middlewares/security.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,11 +25,18 @@ envCandidates.forEach((p) => {
 
 const app = express();
 
+// Security Middlewares
+app.use(securityHeaders);
+
 // Middlewares básicos
-app.use(cors());
+app.use(cors()); // TODO: Configure strict CORS in production
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate Limiting
+app.use("/api", apiLimiter);
+app.use("/api/auth", authLimiter);
 
 /* ------------------ Montaje de rutas con fallback ------------------ */
 /**
