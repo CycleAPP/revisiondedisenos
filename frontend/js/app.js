@@ -1132,6 +1132,25 @@ if ($("taskModelKey")) {
     status.textContent = "Buscando...";
     status.className = "label-text-alt text-blue-500";
 
+    // 1. Check for duplicates first
+    try {
+      const dupRes = await fetch(API + "/api/assignments/assigned", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
+      const dupJson = await dupRes.json();
+      if (dupRes.ok && dupJson.ok) {
+        const existing = (dupJson.data || []).find(t => t.modelKey.toLowerCase() === key.toLowerCase());
+        if (existing) {
+          status.textContent = `¡Ya existe! (ID: ${existing.id})`;
+          status.className = "label-text-alt text-red-500 font-bold";
+          toast(`El modelo ${key} ya tiene una tarea creada.`, "warning");
+          // Optional: prevent creation or just warn? User asked for warning.
+          // Let's continue to allow them to see the catalog info but keep the warning visible?
+          // Or stop? Let's stop auto-fill to force them to notice.
+          return;
+        }
+      }
+    } catch (e) { console.error("Error checking duplicates", e); }
+
+    // 2. Fetch Catalog Info
     try {
       const r = await fetch(API + "/api/files/excel-row/" + encodeURIComponent(key), {
         headers: { Authorization: "Bearer " + session.token }
@@ -1223,7 +1242,10 @@ async function loadUnassignedTasks() {
       <label class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer border-b last:border-0">
         <input type="checkbox" class="checkbox checkbox-xs checkbox-primary task-checkbox" value="${t.id}" />
         <div class="flex-1 min-w-0">
-          <div class="font-medium text-sm truncate">${t.modelKey}</div>
+          <div class="font-medium text-sm truncate">
+            ${t.modelKey} 
+            <span class="text-xs font-normal text-gray-500 ml-1">(${t.projectType || "Sin Retailer"})</span>
+          </div>
           <div class="text-xs text-gray-500 truncate">${t.title || "Sin título"}</div>
         </div>
         <div class="text-xs text-gray-400">${new Date(t.createdAt).toLocaleDateString()}</div>
