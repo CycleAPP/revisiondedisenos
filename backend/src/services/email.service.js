@@ -18,9 +18,11 @@ const createTransporter = () => {
             pass: process.env.SMTP_PASSWORD,
         },
         // Add timeouts to prevent hanging
-        connectionTimeout: 10000, // 10 seconds
-        greetingTimeout: 10000,
-        socketTimeout: 10000
+        connectionTimeout: 20000, // 20 seconds
+        greetingTimeout: 20000,
+        socketTimeout: 20000,
+        // Force IPv4 to avoid IPv6 timeout issues
+        family: 4
     });
 };
 
