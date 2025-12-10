@@ -3,14 +3,24 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import mountOrDummy from "./src/utils/mountOrDummy.js";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load environment variables from root .env (fallback to backend/.env)
+const envCandidates = [
+  path.join(__dirname, ".env"),
+  path.join(__dirname, "..", ".env"),
+];
+envCandidates.forEach((p) => {
+  if (fs.existsSync(p)) {
+    dotenv.config({ path: p, override: false });
+  }
+});
 
 const app = express();
 
