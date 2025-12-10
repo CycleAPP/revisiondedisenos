@@ -1,27 +1,29 @@
 import nodemailer from "nodemailer";
 
-let transporter = null;
+// Remove global transporter to prevent stale connections
+// let transporter = null;
 
-const initTransporter = () => {
-    if (transporter) return transporter;
-
+const createTransporter = () => {
     if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
         console.warn("[Email] SMTP credentials not found. Emails will not be sent.");
         return null;
     }
 
-    transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
         service: "gmail",
         auth: {
             user: process.env.SMTP_EMAIL,
             pass: process.env.SMTP_PASSWORD,
         },
+        // Add timeouts to prevent hanging
+        connectionTimeout: 10000, // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 10000
     });
-    return transporter;
 };
 
 export const sendEmail = async ({ to, subject, html }) => {
-    const t = initTransporter();
+    const t = createTransporter();
     if (!t) return false;
 
     try {
