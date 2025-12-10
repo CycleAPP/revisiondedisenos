@@ -28,6 +28,9 @@ const app = express();
 // Security Middlewares
 app.use(securityHeaders);
 
+// Trust Proxy (Required for Nginx + Rate Limit)
+app.set('trust proxy', 1);
+
 // Middlewares básicos
 app.use(cors()); // TODO: Configure strict CORS in production
 app.use(morgan("dev"));
