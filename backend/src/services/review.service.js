@@ -44,7 +44,14 @@ export const listReviewsService = async ({ userId, role }) => {
             designerEmail: a.assignee?.email || "",
             fileUrl: file ? file.path : null,
             fileName: file ? file.original : null,
-            details: validation && validation.details ? JSON.parse(validation.details) : {},
+            let parsedDetails = {};
+            try {
+                parsedDetails = validation && validation.details ? JSON.parse(validation.details) : {};
+            } catch(e) {
+                console.error("Error parsing validation details:", e);
+                parsedDetails = { error: "Invalid JSON" };
+            }
+            details: parsedDetails,
             createdAt: a.createdAt,
             updatedAt: a.updatedAt
         };
