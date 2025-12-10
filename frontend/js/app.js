@@ -1009,9 +1009,12 @@ $("btnUploadExcel").onclick = async () => {
 
 /* -------------------------- Leader: New Panels -------------------------- */
 
+let allAssignedTasks = []; // Cache for filtering
+
 async function loadLeaderAssigned() {
   if (session.role !== "LEADER" && session.role !== "ADMIN") return;
   const box = $("leaderAssignedBox");
+  // Don't wipe content if we are just filtering, but for now simple reload
   box.innerHTML = '<div class="skeleton"></div>';
 
   try {
@@ -1026,34 +1029,28 @@ async function loadLeaderAssigned() {
     const userMap = {};
     users.forEach(user => userMap[user.id] = user);
 
+    // Populate filter dropdown if empty
+    const filterDes = $("filterAssignedDesigner");
+    if (filterDes && filterDes.options.length <= 1) {
+      users.filter(u => u.role === "DESIGNER").forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = u.name;
+        filterDes.appendChild(opt);
+      });
+    }
+
     if (!r.ok || !j.ok) {
       box.innerHTML = '<div class="text-sm text-red-400">Error cargando asignadas</div>';
       return;
     }
-    const rows = (j.data || []).map(a => {
-      const assignee = userMap[a.assigneeId];
-      const assigneeText = assignee ? `${assignee.name} <span class="text-xs opacity-50">(${assignee.email})</span>` : "N/A";
 
-      return [
-        a.modelKey,
-        a.title,
-        { html: true, content: assigneeText },
-        {
-          html: true,
-          content: `<button class="text-red-500 hover:text-red-700 btn-delete-task" data-id="${a.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`
-        }
-      ];
-    });
-
-    if (rows.length === 0) {
-      box.innerHTML = '<div class="text-sm text-gray-400 italic">No hay tareas asignadas.</div>';
-    } else {
-      box.innerHTML = renderTable(["SKU", "Título", "Asignado a", "Acción"], rows);
-    }
+    allAssignedTasks = (j.data || []).map(a => ({ ...a, assignee: userMap[a.assigneeId] }));
+    renderAssignedTable();
 
     // Update Total Tasks count
     if ($("leaderTotalTasks")) {
-      $("leaderTotalTasks").textContent = (j.data || []).length;
+      $("leaderTotalTasks").textContent = allAssignedTasks.length;
     }
     if (window.lucide) lucide.createIcons();
   } catch (e) {
@@ -1061,6 +1058,44 @@ async function loadLeaderAssigned() {
     box.innerHTML = '<div class="text-sm text-red-400">Error de red</div>';
   }
 }
+
+function renderAssignedTable() {
+  const box = $("leaderAssignedBox");
+  const filterSku = $("filterAssignedSKU") ? $("filterAssignedSKU").value.toLowerCase() : "";
+  const filterDes = $("filterAssignedDesigner") ? $("filterAssignedDesigner").value : "";
+
+  const filtered = allAssignedTasks.filter(t => {
+    const matchSku = !filterSku || t.modelKey.toLowerCase().includes(filterSku);
+    const matchDes = !filterDes || String(t.assigneeId) === filterDes;
+    return matchSku && matchDes;
+  });
+
+  const rows = filtered.map(a => {
+    const assignee = a.assignee;
+    const assigneeText = assignee ? `${assignee.name} <span class="text-xs opacity-50">(${assignee.email})</span>` : '<span class="text-orange-400">Sin asignar</span>';
+
+    return [
+      a.modelKey,
+      a.title,
+      { html: true, content: assigneeText },
+      {
+        html: true,
+        content: `<button class="text-red-500 hover:text-red-700 btn-delete-task" data-id="${a.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`
+      }
+    ];
+  });
+
+  if (rows.length === 0) {
+    box.innerHTML = '<div class="text-sm text-gray-400 italic p-4">No se encontraron tareas.</div>';
+  } else {
+    box.innerHTML = renderTable(["SKU", "Título", "Asignado a", "Acción"], rows);
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+// Filter listeners
+if ($("filterAssignedSKU")) $("filterAssignedSKU").oninput = renderAssignedTable;
+if ($("filterAssignedDesigner")) $("filterAssignedDesigner").onchange = renderAssignedTable;
 
 async function loadLeaderRejected() {
   if (session.role !== "LEADER" && session.role !== "ADMIN") return;
@@ -1096,10 +1131,158 @@ async function loadLeaderRejected() {
 }
 
 // Event listeners for refresh buttons
-$("btnLeaderAssigned").onclick = loadLeaderAssigned;
+$("btnLeaderAssigned").onclick = () => loadLeaderAssigned(); // Pass no args to reset filter?
 $("btnLeaderRejected").onclick = loadLeaderRejected;
 
-// Global listener for delete buttons (since they are dynamic)
+// --- Auto-fill Logic ---
+if ($("taskModelKey")) {
+  $("taskModelKey").addEventListener("blur", async (e) => {
+    const key = e.target.value.trim();
+    if (!key) return;
+
+    const status = $("catalogStatus");
+    status.textContent = "Buscando...";
+    status.className = "label-text-alt text-blue-500";
+
+    try {
+      const r = await fetch(API + "/api/files/excel-row/" + encodeURIComponent(key), {
+        headers: { Authorization: "Bearer " + session.token }
+      });
+      const j = await r.json();
+
+      if (r.ok && j.ok && j.row) {
+        status.textContent = "¡Encontrado en catálogo!";
+        status.className = "label-text-alt text-green-500 font-bold";
+
+        // Auto-fill
+        const row = j.row;
+        // Mapping based on tableConvert.com_ct419w.json structure
+        $("taskTitle").value = row["Descripción"] || row["Description"] || `Diseño para ${key}`;
+        $("taskPackaging").value = row["Empaque"] || row["Packaging"] || "";
+
+        // Construct description from other fields
+        const desc = [
+          row["Caracteristicas"] ? `Características: ${row["Caracteristicas"]}` : "",
+          row["Claims"] ? `Claims: ${row["Claims"]}` : "",
+          row["Información "] ? `Info: ${row["Información "]}` : ""
+        ].filter(Boolean).join("\n");
+        $("taskDesc").value = desc;
+
+        // Show fields but kept read-only (visual cue)
+        $("autoFilledFields").classList.remove("hidden");
+
+      } else {
+        status.textContent = "No encontrado (llenar manual)";
+        status.className = "label-text-alt text-orange-500";
+        $("autoFilledFields").classList.remove("hidden");
+        $("taskTitle").readOnly = false;
+        $("taskPackaging").readOnly = false;
+        $("taskDesc").readOnly = false;
+        $("taskTitle").classList.remove("bg-gray-50");
+        $("taskPackaging").classList.remove("bg-gray-50");
+        $("taskDesc").classList.remove("bg-gray-50");
+      }
+    } catch (e) {
+      console.error(e);
+      status.textContent = "Error de conexión";
+      status.className = "label-text-alt text-red-500";
+    }
+  });
+
+  $("btnEditManual").onclick = () => {
+    $("taskTitle").readOnly = false;
+    $("taskPackaging").readOnly = false;
+    $("taskDesc").readOnly = false;
+    $("taskTitle").classList.remove("bg-gray-50");
+    $("taskPackaging").classList.remove("bg-gray-50");
+    $("taskDesc").classList.remove("bg-gray-50");
+    $("taskTitle").focus();
+  };
+}
+
+// --- Improved Delegation Logic ---
+
+async function loadUnassignedTasks() {
+  if (session.role !== "LEADER" && session.role !== "ADMIN") return;
+  const list = $("unassignedList");
+  list.innerHTML = '<div class="text-xs text-gray-400 text-center py-4">Cargando...</div>';
+
+  try {
+    // Re-use listMyAssignments but we need a way to get ALL unassigned.
+    // Currently listMyAssignments filters by user. 
+    // We might need a new endpoint or reuse "assigned" but filter for empty assignee?
+    // Actually, let's assume "listAssigned" returns everything and we filter client side for now
+    // OR we use the existing "selectAssignment" logic but render differently.
+
+    // Let's use listAssigned but filter for those WITHOUT assignee (if the API supports it)
+    // Wait, the API `listAssigned` returns ALL tasks for Leader.
+    const r = await fetch(API + "/api/assignments/assigned", { headers: { Authorization: "Bearer " + session.token }, cache: "no-store" });
+    const j = await r.json();
+
+    if (!r.ok || !j.ok) {
+      list.innerHTML = '<div class="text-xs text-red-400 p-2">Error cargando tareas</div>';
+      return;
+    }
+
+    const unassigned = (j.data || []).filter(t => !t.assigneeId);
+
+    if (unassigned.length === 0) {
+      list.innerHTML = '<div class="text-xs text-gray-400 text-center py-4">No hay tareas pendientes de asignar.</div>';
+      return;
+    }
+
+    list.innerHTML = unassigned.map(t => `
+      <label class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer border-b last:border-0">
+        <input type="checkbox" class="checkbox checkbox-xs checkbox-primary task-checkbox" value="${t.id}" />
+        <div class="flex-1 min-w-0">
+          <div class="font-medium text-sm truncate">${t.modelKey}</div>
+          <div class="text-xs text-gray-500 truncate">${t.title || "Sin título"}</div>
+        </div>
+        <div class="text-xs text-gray-400">${new Date(t.createdAt).toLocaleDateString()}</div>
+      </label>
+    `).join("");
+
+  } catch (e) {
+    console.error(e);
+    list.innerHTML = '<div class="text-xs text-red-400 p-2">Error de red</div>';
+  }
+}
+
+// Override the delegate button click
+$("btnDelegate").onclick = async () => {
+  const checkboxes = document.querySelectorAll(".task-checkbox:checked");
+  const designerId = $("selectDesigner").value;
+
+  if (checkboxes.length === 0) return toast("Selecciona al menos una tarea", "warning");
+  if (!designerId) return toast("Selecciona un diseñador", "warning");
+
+  const ids = Array.from(checkboxes).map(cb => Number(cb.value));
+  spinner($("btnDelegate"), true);
+
+  try {
+    const r = await fetch(API + "/api/assignments/delegate", {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + session.token, "Content-Type": "application/json" },
+      body: JSON.stringify({ assignmentIds: ids, assigneeId: Number(designerId) })
+    });
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      toast("Tareas asignadas correctamente", "success");
+      loadUnassignedTasks();
+      loadLeaderAssigned();
+      // Also refresh designer metrics if visible
+    } else {
+      toast(j.message || "Error al asignar", "error");
+    }
+  } catch (e) { toast("Error de red", "error"); }
+  finally { spinner($("btnDelegate"), false); }
+};
+
+// Hook up refresh button
+$("btnRefreshDelegation").onclick = () => {
+  loadUnassignedTasks();
+  loadDesignersSelect(); // Refresh designers too
+};
 document.addEventListener("click", async (e) => {
   const btn = e.target.closest(".btn-delete-task");
   if (btn) {

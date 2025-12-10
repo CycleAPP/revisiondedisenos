@@ -487,10 +487,24 @@
             <div class="card p-6 space-y-4">
               <h3 class="font-semibold text-lg">Nueva Tarea</h3>
               <div class="space-y-3">
-                <input id="taskModelKey" class="input" placeholder="SKU (ej. SKU-001)" />
-                <input id="taskTitle" class="input" placeholder="Título del proyecto" />
-                <input id="taskPackaging" class="input"
-                  placeholder="Tipo de empaque / esqueleto (ej. Full Color Box)" />
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text">Número de Modelo (SKU)</span>
+                    <span id="catalogStatus" class="label-text-alt text-gray-400">Buscando en catálogo...</span>
+                  </label>
+                  <input id="taskModelKey" class="input" placeholder="Ej. SKU-001" />
+                </div>
+
+                <!-- Hidden fields, auto-filled -->
+                <div id="autoFilledFields" class="space-y-3 hidden">
+                  <input id="taskTitle" class="input bg-gray-50" placeholder="Título del proyecto" readonly />
+                  <input id="taskPackaging" class="input bg-gray-50" placeholder="Tipo de empaque" readonly />
+                  <textarea id="taskDesc" class="input min-h-[80px] bg-gray-50" placeholder="Descripción detallada..."
+                    readonly></textarea>
+                  <div class="text-xs text-blue-500 cursor-pointer hover:underline" id="btnEditManual">Editar
+                    manualmente</div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-3">
                   <select id="taskRetailer" class="input">
                     <option value="" disabled selected>Selecciona Retailer</option>
@@ -508,7 +522,6 @@
                   </select>
                   <input id="taskDeadline" type="date" class="input" />
                 </div>
-                <textarea id="taskDesc" class="input min-h-[80px]" placeholder="Descripción detallada..."></textarea>
                 <button id="btnCreateTask" class="btn btn-primary w-full">Crear Tarea</button>
               </div>
               <pre id="taskCreateResp" class="hidden"></pre>
@@ -520,174 +533,199 @@
                 <button id="btnRefreshDelegation" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
                     class="w-4 h-4"></i></button>
               </div>
-              <div class="space-y-3">
-                <select id="selectAssignment" class="input" multiple size="5"></select>
-                <p class="text-xs text-gray-400">Mantén Ctrl/Cmd para seleccionar varias</p>
-                <select id="selectDesigner" class="input" size="5"></select>
-                <button id="btnDelegate" class="btn btn-green w-full">Asignar Tarea</button>
+
+              <!-- Unassigned Tasks List -->
+              <div>
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Tareas Sin Asignar</h4>
+                <div id="unassignedList" class="h-48 overflow-y-auto border rounded-lg p-2 space-y-1 bg-base-100">
+                  <div class="text-xs text-gray-400 text-center py-4">Cargando...</div>
+                </div>
               </div>
+
+              <!-- Designer Selection -->
+              <div>
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Seleccionar Diseñador</h4>
+                <select id="selectDesigner" class="input w-full"></select>
+              </div>
+
+              <button id="btnDelegate" class="btn btn-green w-full">Asignar Tarea(s)</button>
               <pre id="delegateResp" class="hidden"></pre>
             </div>
           </div>
 
-          <!-- Leader Metrics -->
-          <div class="card p-6">
-            <h3 class="font-semibold text-lg mb-4">Métricas de Diseñadores</h3>
-            <div class="flex gap-3 mb-4">
-              <select id="metricsDesignerSelect" class="input max-w-xs"></select>
-              <button id="btnLoadMetrics" class="btn btn-primary">Ver Métricas</button>
-            </div>
-            <div id="designerMetricsContainer" class="hidden space-y-4">
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                <!-- Total -->
-                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
-                  <div class="radial-progress text-primary" style="--value:100; --size:4rem;" role="progressbar">
-                    <span id="metTotal" class="text-lg font-bold text-base-content">0</span>
-                  </div>
-                  <div class="text-sm mt-2 font-medium opacity-70">Total Asignadas</div>
-                </div>
-
-                <!-- Completadas -->
-                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
-                  <div id="ringCompleted" class="radial-progress text-success" style="--value:0; --size:4rem;"
-                    role="progressbar">
-                    <span id="metCompleted" class="text-lg font-bold text-base-content">0</span>
-                  </div>
-                  <div class="text-sm mt-2 font-medium opacity-70">Completadas</div>
-                </div>
-
-                <!-- Pendientes -->
-                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
-                  <div id="ringPending" class="radial-progress text-warning" style="--value:0; --size:4rem;"
-                    role="progressbar">
-                    <span id="metPending" class="text-lg font-bold text-base-content">0</span>
-                  </div>
-                  <div class="text-sm mt-2 font-medium opacity-70">Pendientes</div>
-                </div>
-
-                <!-- Tiempo Promedio (No circle, just icon) -->
-                <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
-                  <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-1">
-                    <i data-lucide="clock" class="w-8 h-8"></i>
-                  </div>
-                  <span id="metAvgTime" class="text-lg font-bold text-base-content">0</span>
-                  <div class="text-sm mt-1 font-medium opacity-70">Hrs Promedio</div>
+          <!-- Leader Metrics & Assigned Tasks -->
+          <div class="space-y-6">
+            <!-- Assigned Tasks Filter -->
+            <div class="card p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg">Tareas Asignadas</h3>
+                <div class="flex gap-2">
+                  <input id="filterAssignedSKU" class="input input-sm w-32" placeholder="Filtrar SKU..." />
+                  <select id="filterAssignedDesigner" class="input input-sm w-40">
+                    <option value="">Todos</option>
+                  </select>
                 </div>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div id="leaderAssignedBox" class="overflow-x-auto"></div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="card p-6">
+              <div class="flex gap-3 mb-4">
+                <select id="metricsDesignerSelect" class="input max-w-xs"></select>
+                <button id="btnLoadMetrics" class="btn btn-primary">Ver Métricas</button>
+              </div>
+              <div id="designerMetricsContainer" class="hidden space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                  <!-- Total -->
+                  <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                    <div class="radial-progress text-primary" style="--value:100; --size:4rem;" role="progressbar">
+                      <span id="metTotal" class="text-lg font-bold text-base-content">0</span>
+                    </div>
+                    <div class="text-sm mt-2 font-medium opacity-70">Total Asignadas</div>
+                  </div>
+
+                  <!-- Completadas -->
+                  <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                    <div id="ringCompleted" class="radial-progress text-success" style="--value:0; --size:4rem;"
+                      role="progressbar">
+                      <span id="metCompleted" class="text-lg font-bold text-base-content">0</span>
+                    </div>
+                    <div class="text-sm mt-2 font-medium opacity-70">Completadas</div>
+                  </div>
+
+                  <!-- Pendientes -->
+                  <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                    <div id="ringPending" class="radial-progress text-warning" style="--value:0; --size:4rem;"
+                      role="progressbar">
+                      <span id="metPending" class="text-lg font-bold text-base-content">0</span>
+                    </div>
+                    <div class="text-sm mt-2 font-medium opacity-70">Pendientes</div>
+                  </div>
+
+                  <!-- Tiempo Promedio (No circle, just icon) -->
+                  <div class="flex flex-col items-center p-4 bg-base-200 rounded-box">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-1">
+                      <i data-lucide="clock" class="w-8 h-8"></i>
+                    </div>
+                    <span id="metAvgTime" class="text-lg font-bold text-base-content">0</span>
+                    <div class="text-sm mt-1 font-medium opacity-70">Hrs Promedio</div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 class="text-sm font-medium mb-2">Proyectos por Tipo</h4>
+                    <canvas id="chartMetProjects"></canvas>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-medium mb-2">Errores Comunes</h4>
+                    <canvas id="chartMetErrors"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div class="card p-6 flex items-center gap-4">
+                <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
+                  <i data-lucide="layers" class="w-6 h-6"></i>
+                </div>
                 <div>
-                  <h4 class="text-sm font-medium mb-2">Proyectos por Tipo</h4>
-                  <canvas id="chartMetProjects"></canvas>
+                  <p class="text-sm text-gray-500">Total Tareas</p>
+                  <h3 id="leaderTotalTasks" class="text-2xl font-bold">0</h3>
+                </div>
+              </div>
+              <div class="card p-6 flex items-center gap-4">
+                <div class="p-3 bg-green-100 text-green-600 rounded-full">
+                  <i data-lucide="check-circle" class="w-6 h-6"></i>
                 </div>
                 <div>
-                  <h4 class="text-sm font-medium mb-2">Errores Comunes</h4>
-                  <canvas id="chartMetErrors"></canvas>
+                  <p class="text-sm text-gray-500">Aprobadas</p>
+                  <h3 id="leaderTotalApproved" class="text-2xl font-bold">0</h3>
+                </div>
+              </div>
+              <div class="card p-6 flex items-center gap-4">
+                <div class="p-3 bg-amber-100 text-amber-600 rounded-full">
+                  <i data-lucide="clock" class="w-6 h-6"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Pendientes</p>
+                  <h3 id="leaderTotalPending" class="text-2xl font-bold">0</h3>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="card p-6 flex items-center gap-4">
-              <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
-                <i data-lucide="layers" class="w-6 h-6"></i>
+            <!-- Cargar Base de Datos (Excel) -->
+            <div class="card p-6 mb-6">
+              <h3 class="font-semibold text-lg mb-4">Cargar Base de Datos (Excel)</h3>
+              <div class="flex gap-3">
+                <input id="excelModelKey" class="input max-w-xs" placeholder="SKU Relacionado" />
+                <input id="excelFile" type="file" accept=".xlsx,.xls" class="input" />
+                <button id="btnUploadExcel" class="btn btn-indigo">Subir Archivo</button>
               </div>
-              <div>
-                <p class="text-sm text-gray-500">Total Tareas</p>
-                <h3 id="leaderTotalTasks" class="text-2xl font-bold">0</h3>
-              </div>
+              <pre id="excelResp" class="mt-4 hidden"></pre>
             </div>
-            <div class="card p-6 flex items-center gap-4">
-              <div class="p-3 bg-green-100 text-green-600 rounded-full">
-                <i data-lucide="check-circle" class="w-6 h-6"></i>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">Aprobadas</p>
-                <h3 id="leaderTotalApproved" class="text-2xl font-bold">0</h3>
-              </div>
-            </div>
-            <div class="card p-6 flex items-center gap-4">
-              <div class="p-3 bg-amber-100 text-amber-600 rounded-full">
-                <i data-lucide="clock" class="w-6 h-6"></i>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">Pendientes</p>
-                <h3 id="leaderTotalPending" class="text-2xl font-bold">0</h3>
-              </div>
-            </div>
-          </div>
 
-          <!-- Cargar Base de Datos (Excel) -->
-          <div class="card p-6 mb-6">
-            <h3 class="font-semibold text-lg mb-4">Cargar Base de Datos (Excel)</h3>
-            <div class="flex gap-3">
-              <input id="excelModelKey" class="input max-w-xs" placeholder="SKU Relacionado" />
-              <input id="excelFile" type="file" accept=".xlsx,.xls" class="input" />
-              <button id="btnUploadExcel" class="btn btn-indigo">Subir Archivo</button>
-            </div>
-            <pre id="excelResp" class="mt-4 hidden"></pre>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Tareas Asignadas -->
-            <div class="card p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold text-lg text-blue-600 flex items-center gap-2">
-                  <i data-lucide="user-check" class="w-5 h-5"></i> Tareas Asignadas
-                </h3>
-                <button id="btnLeaderAssigned" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
-                    class="w-4 h-4"></i></button>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- Tareas Asignadas -->
+              <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-semibold text-lg text-blue-600 flex items-center gap-2">
+                    <i data-lucide="user-check" class="w-5 h-5"></i> Tareas Asignadas
+                  </h3>
+                  <button id="btnLeaderAssigned" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                      class="w-4 h-4"></i></button>
+                </div>
+                <div id="leaderAssignedBox">
+                  <div class="skeleton"></div>
+                </div>
               </div>
-              <div id="leaderAssignedBox">
-                <div class="skeleton"></div>
+
+              <!-- Tareas Rechazadas -->
+              <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-semibold text-lg text-red-600 flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-5 h-5"></i> Tareas Rechazadas
+                  </h3>
+                  <button id="btnLeaderRejected" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                      class="w-4 h-4"></i></button>
+                </div>
+                <div id="leaderRejectedBox">
+                  <div class="skeleton"></div>
+                </div>
+              </div>
+
+              <!-- Tareas Aprobadas (Finalizadas) -->
+              <div class="card p-6 col-span-1 lg:col-span-2">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-semibold text-lg text-green-600 flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i> Tareas Aprobadas
+                  </h3>
+                  <button id="btnLeaderApproved" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                      class="w-4 h-4"></i></button>
+                </div>
+                <div id="leaderApprovedBox" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="skeleton"></div>
+                </div>
               </div>
             </div>
 
-            <!-- Tareas Rechazadas -->
-            <div class="card p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold text-lg text-red-600 flex items-center gap-2">
-                  <i data-lucide="alert-circle" class="w-5 h-5"></i> Tareas Rechazadas
-                </h3>
-                <button id="btnLeaderRejected" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
-                    class="w-4 h-4"></i></button>
+            <div class="grid grid-cols-1 gap-6">
+              <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-semibold text-lg text-amber-600 flex items-center gap-2">
+                    <i data-lucide="clock" class="w-5 h-5"></i> Validaciones Pendientes
+                  </h3>
+                  <button id="btnLeaderValidations" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
+                      class="w-4 h-4"></i></button>
+                </div>
+                <div id="leaderValidationsBox">
+                  <div class="skeleton"></div>
+                </div>
               </div>
-              <div id="leaderRejectedBox">
-                <div class="skeleton"></div>
-              </div>
+
+
             </div>
-
-            <!-- Tareas Aprobadas (Finalizadas) -->
-            <div class="card p-6 col-span-1 lg:col-span-2">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold text-lg text-green-600 flex items-center gap-2">
-                  <i data-lucide="check-circle-2" class="w-5 h-5"></i> Tareas Aprobadas
-                </h3>
-                <button id="btnLeaderApproved" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
-                    class="w-4 h-4"></i></button>
-              </div>
-              <div id="leaderApprovedBox" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="skeleton"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 gap-6">
-            <div class="card p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold text-lg text-amber-600 flex items-center gap-2">
-                  <i data-lucide="clock" class="w-5 h-5"></i> Validaciones Pendientes
-                </h3>
-                <button id="btnLeaderValidations" class="btn btn-ghost btn-sm"><i data-lucide="refresh-cw"
-                    class="w-4 h-4"></i></button>
-              </div>
-              <div id="leaderValidationsBox">
-                <div class="skeleton"></div>
-              </div>
-            </div>
-
-
-          </div>
         </section>
 
         <!-- ADMIN -->
