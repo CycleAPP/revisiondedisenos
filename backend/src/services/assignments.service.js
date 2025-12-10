@@ -1,8 +1,8 @@
 import prisma from "../config/prisma.js";
 
-export const createAssignmentService = async ({ modelKey, title, description, createdById }) => {
+export const createAssignmentService = async ({ modelKey, title, description, createdById, projectType, deadline }) => {
   return prisma.assignment.create({
-    data: { modelKey, title, description, createdById }
+    data: { modelKey, title, description, createdById, projectType, deadline }
   });
 };
 

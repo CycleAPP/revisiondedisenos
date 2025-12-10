@@ -93,6 +93,10 @@ model Assignment {
   createdById Int
   createdBy   User     @relation("CreatedBy", fields: [createdById], references: [id])
 
+  // Nuevos campos
+  projectType String?  // Retailer / Buyer
+  deadline    DateTime?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

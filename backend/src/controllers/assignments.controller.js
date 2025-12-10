@@ -18,7 +18,8 @@ const PROJECT_MAPPING = {
 export const createAssignment = async (req, res) => {
   try {
     const { retailer, deadline, packagingType, ...rest } = req.body;
-    const projectType = (packagingType && packagingType.trim()) || PROJECT_MAPPING[retailer] || retailer;
+    // Fix: Prioritize Retailer mapping, then fallback to packagingType or raw retailer
+    const projectType = PROJECT_MAPPING[retailer] || retailer || (packagingType && packagingType.trim());
 
     const payload = {
       ...rest,
