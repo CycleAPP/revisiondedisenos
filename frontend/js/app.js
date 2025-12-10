@@ -1195,107 +1195,107 @@ if ($("taskModelKey")) {
           window.existingRetailersForSku = [];
         }
       }
-    }
 
       // Check against currently selected retailer immediately
       const currentRetailer = $("taskRetailer") ? $("taskRetailer").value.toLowerCase() : "";
-    const btn = $("btnCreateTask");
+      const btn = $("btnCreateTask");
+      const existingList = window.existingRetailersForSku || [];
 
-    if (currentRetailer && window.existingRetailersForSku.includes(currentRetailer)) {
-      status.textContent = "❌ Combinación SKU+Retailer ya existe";
-      status.className = "label-text-alt text-red-600 font-bold";
-      if (btn) btn.disabled = true;
-      toast(`Error: Ya existe tarea para ${key} y ${$("taskRetailer").value}`, "error");
-    } else if (window.existingRetailersForSku.length > 0) {
-      // Just warning
-      if (btn) btn.disabled = false;
-    } else {
-      // No duplicates
-      if (btn) btn.disabled = false;
-    }
+      if (currentRetailer && existingList.includes(currentRetailer)) {
+        status.textContent = "❌ Combinación SKU+Retailer ya existe";
+        status.className = "label-text-alt text-red-600 font-bold";
+        if (btn) btn.disabled = true;
+        toast(`Error: Ya existe tarea para ${key} y ${$("taskRetailer").value}`, "error");
+      } else if (window.existingRetailersForSku.length > 0) {
+        // Just warning
+        if (btn) btn.disabled = false;
+      } else {
+        // No duplicates
+        if (btn) btn.disabled = false;
+      }
 
-  } catch (e) { console.error("Error checking duplicates", e); }
+    } catch (e) { console.error("Error checking duplicates", e); }
 
-  // 2. Fetch Catalog Info
-  try {
-    const r = await fetch(API + "/api/files/excel-row/" + encodeURIComponent(key), {
-      headers: { Authorization: "Bearer " + session.token }
-    });
-    const j = await r.json();
+    // 2. Fetch Catalog Info
+    try {
+      const r = await fetch(API + "/api/files/excel-row/" + encodeURIComponent(key), {
+        headers: { Authorization: "Bearer " + session.token }
+      });
+      const j = await r.json();
 
-    if (r.ok && j.ok && j.row) {
-      status.textContent = "¡Encontrado en catálogo!";
-      status.className = "label-text-alt text-green-500 font-bold";
+      if (r.ok && j.ok && j.row) {
+        status.textContent = "¡Encontrado en catálogo!";
+        status.className = "label-text-alt text-green-500 font-bold";
 
-      // Auto-fill
-      const row = j.row;
-      // Mapping based on tableConvert.com_ct419w.json structure
-      $("taskTitle").value = row["Descripción"] || row["Description"] || `Diseño para ${key}`;
+        // Auto-fill
+        const row = j.row;
+        // Mapping based on tableConvert.com_ct419w.json structure
+        $("taskTitle").value = row["Descripción"] || row["Description"] || `Diseño para ${key}`;
 
-      // Packaging Logic
-      const packValue = row["Empaque"] || row["Packaging"] || "";
-      const packSel = $("taskPackaging");
+        // Packaging Logic
+        const packValue = row["Empaque"] || row["Packaging"] || "";
+        const packSel = $("taskPackaging");
 
-      // Try to select if exists
-      let foundOption = false;
-      for (let i = 0; i < packSel.options.length; i++) {
-        if (packSel.options[i].value === packValue) {
-          packSel.selectedIndex = i;
-          foundOption = true;
-          break;
+        // Try to select if exists
+        let foundOption = false;
+        for (let i = 0; i < packSel.options.length; i++) {
+          if (packSel.options[i].value === packValue) {
+            packSel.selectedIndex = i;
+            foundOption = true;
+            break;
+          }
         }
+
+        // If not found, add it temporarily or select "OTHER" and maybe put it in description?
+        // Or just add it as an option.
+        if (!foundOption && packValue) {
+          const opt = document.createElement("option");
+          opt.value = packValue;
+          opt.textContent = packValue + " (Del Excel)";
+          opt.selected = true;
+          packSel.appendChild(opt);
+        } else if (!packValue) {
+          packSel.value = ""; // Reset
+        }
+
+        // Construct description from other fields
+        const desc = [
+          row["Caracteristicas"] ? `Características: ${row["Caracteristicas"]}` : "",
+          row["Claims"] ? `Claims: ${row["Claims"]}` : "",
+          row["Información "] ? `Info: ${row["Información "]}` : ""
+        ].filter(Boolean).join("\n");
+        $("taskDesc").value = desc;
+
+        // Show fields but kept read-only (visual cue)
+        $("autoFilledFields").classList.remove("hidden");
+
+      } else {
+        status.textContent = "No encontrado (llenar manual)";
+        status.className = "label-text-alt text-orange-500";
+        $("autoFilledFields").classList.remove("hidden");
+        $("taskTitle").readOnly = false;
+        $("taskPackaging").disabled = false; // Enable dropdown
+        $("taskPackaging").classList.remove("bg-gray-50");
+        $("taskDesc").readOnly = false;
+        $("taskTitle").classList.remove("bg-gray-50");
+        $("taskDesc").classList.remove("bg-gray-50");
       }
-
-      // If not found, add it temporarily or select "OTHER" and maybe put it in description?
-      // Or just add it as an option.
-      if (!foundOption && packValue) {
-        const opt = document.createElement("option");
-        opt.value = packValue;
-        opt.textContent = packValue + " (Del Excel)";
-        opt.selected = true;
-        packSel.appendChild(opt);
-      } else if (!packValue) {
-        packSel.value = ""; // Reset
-      }
-
-      // Construct description from other fields
-      const desc = [
-        row["Caracteristicas"] ? `Características: ${row["Caracteristicas"]}` : "",
-        row["Claims"] ? `Claims: ${row["Claims"]}` : "",
-        row["Información "] ? `Info: ${row["Información "]}` : ""
-      ].filter(Boolean).join("\n");
-      $("taskDesc").value = desc;
-
-      // Show fields but kept read-only (visual cue)
-      $("autoFilledFields").classList.remove("hidden");
-
-    } else {
-      status.textContent = "No encontrado (llenar manual)";
-      status.className = "label-text-alt text-orange-500";
-      $("autoFilledFields").classList.remove("hidden");
-      $("taskTitle").readOnly = false;
-      $("taskPackaging").disabled = false; // Enable dropdown
-      $("taskPackaging").classList.remove("bg-gray-50");
-      $("taskDesc").readOnly = false;
-      $("taskTitle").classList.remove("bg-gray-50");
-      $("taskDesc").classList.remove("bg-gray-50");
+    } catch (e) {
+      console.error(e);
+      status.textContent = "Error de conexión";
+      status.className = "label-text-alt text-red-500";
     }
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Error de conexión";
-    status.className = "label-text-alt text-red-500";
-  }
-});
+  });
 
-$("btnEditManual").onclick = () => {
-  $("taskTitle").readOnly = false;
-  $("taskPackaging").disabled = false; // Enable dropdown
-  $("taskPackaging").classList.remove("bg-gray-50");
-  $("taskDesc").readOnly = false;
-  $("taskTitle").classList.remove("bg-gray-50");
-  $("taskDesc").classList.remove("bg-gray-50");
-  $("taskTitle").focus();
-};
+  $("btnEditManual").onclick = () => {
+    $("taskTitle").readOnly = false;
+    $("taskPackaging").disabled = false; // Enable dropdown
+    $("taskPackaging").classList.remove("bg-gray-50");
+    $("taskDesc").readOnly = false;
+    $("taskTitle").classList.remove("bg-gray-50");
+    $("taskDesc").classList.remove("bg-gray-50");
+    $("taskTitle").focus();
+  };
 }
 
 // Check duplicate on Retailer change
