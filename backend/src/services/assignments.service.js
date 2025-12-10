@@ -41,8 +41,10 @@ export const delegateAssignmentService = async ({ assignmentIds, assigneeId }) =
         to: assignee.email,
         subject: `Nueva Asignación (${assignments.length} tareas) - Diseño Empaque`,
         html
-      }).then(() => console.log("[Delegate] Email sent"))
-        .catch(e => console.error("Error sending email:", e));
+      }).then(ok => {
+        if (ok) console.log("[Delegate] Email sent successfully");
+        else console.error("[Delegate] Email failed to send (check logs)");
+      }).catch(e => console.error("Error calling sendEmail:", e));
     } else {
       console.warn(`[Delegate] Assignee ${assigneeId} not found or has no email`);
     }
