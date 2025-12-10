@@ -71,7 +71,7 @@ export const listMyAssignmentsService = async ({ userId, role }) => {
 
 export const listAssignedService = async () => {
   return prisma.assignment.findMany({
-    where: { assigneeId: { not: null } },
+    // Return ALL assignments so Leader can see unassigned ones too
     orderBy: { updatedAt: "desc" }
   });
 };
