@@ -25,16 +25,19 @@ export const sendEmail = async ({ to, subject, html }) => {
     if (!t) return false;
 
     try {
+        console.log(`[Email] Attempting to send to: ${to}`);
         const info = await t.sendMail({
             from: `"Diseño Empaque" <${process.env.SMTP_EMAIL}>`,
             to,
             subject,
             html,
         });
-        console.log("[Email] Sent:", info.messageId);
+        console.log("[Email] Sent successfully. MessageID:", info.messageId);
         return true;
     } catch (e) {
         console.error("[Email] Error sending:", e);
+        // Log more details if available
+        if (e.response) console.error("[Email] SMTP Response:", e.response);
         return false;
     }
 };
