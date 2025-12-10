@@ -25,11 +25,11 @@ envCandidates.forEach((p) => {
 
 const app = express();
 
-// Security Middlewares
-app.use(securityHeaders);
+// Security Middlewares - DISABLED BY USER REQUEST
+// app.use(securityHeaders);
 
-// Trust Proxy (Required for Nginx + Rate Limit)
-app.set('trust proxy', 1);
+// Trust Proxy (Required for Nginx + Rate Limit) - Keeping this doesn't hurt, but commenting out for full revert
+// app.set('trust proxy', 1);
 
 // Middlewares básicos
 app.use(cors()); // TODO: Configure strict CORS in production
