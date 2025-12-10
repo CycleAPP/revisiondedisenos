@@ -894,3 +894,215 @@ body.theme-dark .upload-success-overlay {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* ============================================ */
+/* ========= DARK MODE CONTRAST FIXES ========= */
+/* ============================================ */
+
+/* --- Form Elements in Dark Mode --- */
+body.theme-dark .input,
+body.theme-dark select,
+body.theme-dark textarea {
+  background-color: var(--bg-input) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border) !important;
+}
+
+body.theme-dark .input::placeholder,
+body.theme-dark select::placeholder,
+body.theme-dark textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Read-only inputs in dark mode */
+body.theme-dark .input[readonly],
+body.theme-dark textarea[readonly] {
+  background-color: #1f1f23 !important;
+  color: var(--text-muted) !important;
+}
+
+/* Disabled inputs in dark mode */
+body.theme-dark .input:disabled,
+body.theme-dark select:disabled {
+  background-color: #1f1f23 !important;
+  color: var(--text-muted) !important;
+  opacity: 0.7;
+}
+
+/* --- Select dropdown options --- */
+body.theme-dark select option {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+/* --- Labels in Dark Mode --- */
+body.theme-dark label,
+body.theme-dark .label,
+body.theme-dark .label-text {
+  color: var(--text-main) !important;
+}
+
+body.theme-dark .label-text-alt {
+  color: var(--text-muted) !important;
+}
+
+/* --- Table fixes for Dark Mode --- */
+body.theme-dark .table th {
+  background-color: #1f1f23 !important;
+  color: var(--text-muted) !important;
+}
+
+body.theme-dark .table td {
+  color: var(--text-main) !important;
+  border-color: var(--border) !important;
+}
+
+body.theme-dark .table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* --- Text colors in Dark Mode --- */
+body.theme-dark .text-gray-400 {
+  color: #a1a1aa !important;
+}
+
+body.theme-dark .text-gray-500 {
+  color: #71717a !important;
+}
+
+body.theme-dark .text-gray-600 {
+  color: #a1a1aa !important;
+}
+
+body.theme-dark .text-gray-700 {
+  color: #d4d4d8 !important;
+}
+
+body.theme-dark .text-gray-900 {
+  color: #fafafa !important;
+}
+
+/* --- Background overrides for Dark Mode --- */
+body.theme-dark .bg-gray-50,
+body.theme-dark .bg-gray-100 {
+  background-color: var(--bg-input) !important;
+}
+
+body.theme-dark .bg-white {
+  background-color: var(--bg-card) !important;
+}
+
+body.theme-dark .bg-base-100,
+body.theme-dark .bg-base-200 {
+  background-color: var(--bg-input) !important;
+}
+
+/* --- Border overrides for Dark Mode --- */
+body.theme-dark .border-gray-100,
+body.theme-dark .border-gray-200 {
+  border-color: var(--border) !important;
+}
+
+/* --- Card sections in Dark Mode --- */
+body.theme-dark .card h3,
+body.theme-dark .card h4 {
+  color: var(--text-main);
+}
+
+body.theme-dark .card p {
+  color: var(--text-muted);
+}
+
+/* --- File input in Dark Mode --- */
+body.theme-dark input[type="file"] {
+  background-color: var(--bg-input) !important;
+  color: var(--text-main) !important;
+}
+
+body.theme-dark input[type="file"]::file-selector-button {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+body.theme-dark input[type="file"]::file-selector-button:hover {
+  background-color: var(--bg-hover);
+}
+
+/* --- Date input in Dark Mode --- */
+body.theme-dark input[type="date"] {
+  background-color: var(--bg-input) !important;
+  color: var(--text-main) !important;
+  color-scheme: dark;
+}
+
+/* --- Checkbox in Dark Mode --- */
+body.theme-dark .checkbox {
+  border-color: var(--border);
+  background-color: var(--bg-input);
+}
+
+/* --- Hover states in Dark Mode --- */
+body.theme-dark .hover\:bg-gray-50:hover,
+body.theme-dark .hover\:bg-gray-100:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* --- Info/Alert boxes in Dark Mode --- */
+body.theme-dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+body.theme-dark .text-blue-500,
+body.theme-dark .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+body.theme-dark .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+body.theme-dark .text-indigo-600,
+body.theme-dark .text-indigo-900 {
+  color: #a5b4fc !important;
+}
+
+body.theme-dark .border-indigo-100 {
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* --- Success/Warning/Error status boxes --- */
+body.theme-dark .bg-green-50,
+body.theme-dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.theme-dark .bg-amber-50,
+body.theme-dark .bg-yellow-50 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+body.theme-dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* --- Skeleton in Dark Mode --- */
+body.theme-dark .skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.08)) !important;
+  background-size: 180% 100%;
+}
+
+/* --- Fix for radial progress in Dark Mode --- */
+body.theme-dark .radial-progress {
+  background-color: var(--bg-input);
+}
+
+/* --- Pre/code blocks in Dark Mode --- */
+body.theme-dark pre {
+  background-color: #1f1f23 !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border);
+}
